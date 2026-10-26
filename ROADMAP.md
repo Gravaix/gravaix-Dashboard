@@ -15,9 +15,9 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 ## Phase 1: Cockpit (`cockpit.gravaix.de`)
 
 ### 1.1 Grundgerüst & Login
-- [ ] Next.js-App mit Layout und Navigation (Übersicht, Mails, Aufträge, Kalender)
-- [ ] Login mit Passwort + Zwei-Faktor (Authenticator-App)
-- [ ] Mobil gut bedienbar
+- [x] Next.js-App mit Layout und Navigation (Übersicht, Mails, Aufträge, Kalender)
+- [x] Login mit Passwort + Zwei-Faktor (Authenticator-App)
+- [x] Mobil gut bedienbar
 
 ### 1.2 Mails
 - [ ] IONOS-Postfach anbinden (IMAP), Ordner anzeigen
