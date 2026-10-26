@@ -1,0 +1,16 @@
+# Abhängigkeiten
+node_modules/
+
+# Build
+.next/
+dist/
+build/
+
+# Zugangsdaten – nie committen
+.env
+.env.*
+!.env.example
+
+# System
+.DS_Store
+*.log
