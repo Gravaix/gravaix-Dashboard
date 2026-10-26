@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalendarClock, ChevronLeft, ChevronRight } from "lucide-react";
 import { statusSetzen } from "@/app/(cockpit)/auftraege/actions";
 import type { Auftrag } from "@/generated/prisma/client";
+import { centZuEuro } from "@/lib/auftrag/geld";
 import { auftragNummer, nachbar, statusName } from "@/lib/auftrag/status";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +51,14 @@ export function AuftragKarte({ auftrag }: { auftrag: Auftrag }) {
         <span className="text-xs text-muted-foreground tabular-nums">{auftragNummer(auftrag.id)}</span>
         <span className="block text-sm font-medium break-words">{auftrag.titel}</span>
         <span className="block truncate text-sm text-muted-foreground">{auftrag.kunde}</span>
+        {(auftrag.menge || auftrag.produkt) && (
+          <span className="block truncate text-xs text-muted-foreground">
+            {[auftrag.menge && `${auftrag.menge.toLocaleString("de-DE")} ×`, auftrag.produkt].filter(Boolean).join(" ")}
+          </span>
+        )}
+        {auftrag.preisCent !== null && (
+          <span className="block text-xs font-medium tabular-nums">{centZuEuro(auftrag.preisCent)}</span>
+        )}
         {deadline && (
           <span className={cn("mt-1 flex items-center gap-1 text-xs", deadline.klasse)}>
             <CalendarClock className="size-3.5" />

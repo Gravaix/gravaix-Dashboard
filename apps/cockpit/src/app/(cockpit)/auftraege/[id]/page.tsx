@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auftragSpeichern } from "@/app/(cockpit)/auftraege/actions";
 import { AuftragFormular } from "@/components/auftrag/auftrag-formular";
 import { PageHeader } from "@/components/page-header";
+import { centZuEingabe } from "@/lib/auftrag/geld";
 import { auftragNummer } from "@/lib/auftrag/status";
 import { prisma } from "@/lib/db";
 
@@ -30,6 +31,10 @@ export default async function AuftragPage({ params }: PageProps<"/auftraege/[id]
           titel: a.titel,
           kunde: a.kunde,
           kundeEmail: a.kundeEmail ?? "",
+          produkt: a.produkt ?? "",
+          menge: a.menge ? String(a.menge) : "",
+          gravur: a.gravur ?? "",
+          preis: centZuEingabe(a.preisCent),
           deadline: a.deadline ? a.deadline.toISOString().slice(0, 10) : "",
           status: a.status,
           notizen: a.notizen ?? "",
