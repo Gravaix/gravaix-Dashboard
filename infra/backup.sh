@@ -6,6 +6,8 @@
 #
 # Legt eine Sicherung in ~/backups/postgres/ ab und behält die letzten 14.
 # Ältere werden erst gelöscht, NACHDEM die neue Sicherung geklappt hat.
+# Ist in infra/.env der Object Storage eingetragen (BACKUP_S3_*), wird jede
+# Sicherung zusätzlich verschlüsselt nach Frankfurt hochgeladen (siehe docs/backup.md).
 # Später kommt hier auch Radicale (Kalender) dazu.
 
 set -euo pipefail
@@ -14,6 +16,8 @@ BACKUP_DIR="${BACKUP_DIR:-$HOME/backups}"
 BEHALTEN=14
 
 cd "$(dirname "$0")"
+source ./backup-lib.sh
+lade_backup_env "$PWD"
 umask 077
 mkdir -p "$BACKUP_DIR/postgres"
 
@@ -36,3 +40,13 @@ mv "$DATEI.tmp" "$DATEI"
 ls -1t "$BACKUP_DIR"/postgres/cockpit_*.dump | tail -n +$((BEHALTEN + 1)) | xargs -r rm --
 
 echo "[$(date '+%F %T')] Fertig: $(du -h "$DATEI" | cut -f1), $(ls -1 "$BACKUP_DIR"/postgres/cockpit_*.dump | wc -l) Sicherungen vorhanden"
+
+# Externe Kopie (verschlüsselt). Dort wird nichts gelöscht: die Objektsperre
+# schützt jede Sicherung 30 Tage, danach können sie per Lebenszyklus-Regel weg.
+if extern_konfiguriert; then
+  echo "[$(date '+%F %T')] Lade verschlüsselt hoch nach ${BACKUP_S3_BUCKET} …"
+  rclone_docker "$BACKUP_DIR/postgres" copy "/data/$(basename "$DATEI")" sicher:postgres/ --s3-upload-cutoff 100M --retries 5
+  echo "[$(date '+%F %T')] Externe Kopie fertig."
+else
+  echo "[$(date '+%F %T')] Hinweis: externe Kopie noch nicht eingerichtet (BACKUP_S3_* in infra/.env)."
+fi
