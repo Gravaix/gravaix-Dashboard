@@ -1,7 +1,8 @@
 # Backup der Cockpit-Datenbank
 
 Jede Nacht um 3:30 Uhr sichert der Server die Cockpit-Datenbank nach
-`~/backups/postgres/`. Es bleiben immer die letzten 14 Sicherungen erhalten.
+`~/backups/postgres/`. Es bleiben die Sicherungen der letzten 14 Tage erhalten
+(mindestens 14 Stück). Zusätzlich sichert jedes automatische Update vorher die Datenbank.
 Alle Befehle laufen **auf dem Server** (per SSH).
 
 ## Einmalig einrichten

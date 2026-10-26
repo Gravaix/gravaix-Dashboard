@@ -4,8 +4,8 @@
 # Läuft automatisch jede Nacht (Cronjob, siehe docs/backup.md).
 # Von Hand starten (auf dem Server):  ~/gravaix/infra/backup.sh
 #
-# Legt eine Sicherung in ~/backups/postgres/ ab und behält die letzten 14.
-# Ältere werden erst gelöscht, NACHDEM die neue Sicherung geklappt hat.
+# Legt eine Sicherung in ~/backups/postgres/ ab und behält die der letzten 14 Tage
+# (mindestens 14 Stück). Ältere werden erst gelöscht, NACHDEM die neue Sicherung geklappt hat.
 # Ist in infra/.env der Object Storage eingetragen (BACKUP_S3_*), wird jede
 # Sicherung zusätzlich verschlüsselt nach Frankfurt hochgeladen (siehe docs/backup.md).
 # Später kommt hier auch Radicale (Kalender) dazu.
@@ -36,8 +36,12 @@ if [[ ! -s "$DATEI.tmp" ]]; then
 fi
 mv "$DATEI.tmp" "$DATEI"
 
-# Alte Sicherungen aufräumen: nur die neuesten $BEHALTEN bleiben.
-ls -1t "$BACKUP_DIR"/postgres/cockpit_*.dump | tail -n +$((BEHALTEN + 1)) | xargs -r rm --
+# Alte Sicherungen aufräumen: gelöscht wird nur, was älter als $BEHALTEN Tage ist,
+# und es bleiben immer mindestens die neuesten $BEHALTEN Sicherungen übrig
+# (auch an Tagen mit mehreren Updates gehen so keine Tage verloren).
+ls -1t "$BACKUP_DIR"/postgres/cockpit_*.dump | tail -n +$((BEHALTEN + 1)) | while read -r alt; do
+  if [[ -n "$(find "$alt" -mtime +"$BEHALTEN")" ]]; then rm -- "$alt"; fi
+done
 
 echo "[$(date '+%F %T')] Fertig: $(du -h "$DATEI" | cut -f1), $(ls -1 "$BACKUP_DIR"/postgres/cockpit_*.dump | wc -l) Sicherungen vorhanden"
 
