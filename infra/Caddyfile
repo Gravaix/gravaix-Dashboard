@@ -3,13 +3,17 @@
 	email info@gravaix.de
 }
 
-# Cockpit – vorerst Platzhalter, später die Next.js-App
+# Cockpit – Next.js-App im Container "cockpit"
 cockpit.gravaix.de {
-	root * /srv/placeholder
-	file_server
+	encode zstd gzip
+	reverse_proxy cockpit:3000
 	header {
 		X-Robots-Tag "noindex, nofollow"
 		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
 	}
 }
 

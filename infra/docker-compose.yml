@@ -1,5 +1,6 @@
 # Gravaix – Dienste auf dem VPS
-# Starten (auf dem Server, im Ordner infra):  docker compose up -d
+# Starten (auf dem Server, im Ordner infra):  docker compose up -d --build
+# Zugangsdaten stehen in infra/.env (Vorlage: .env.example, nie committen).
 services:
   caddy:
     image: caddy:2
@@ -10,10 +11,39 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./placeholder:/srv/placeholder:ro
       - caddy_data:/data        # SSL-Zertifikate
       - caddy_config:/config
+    depends_on:
+      - cockpit
+
+  cockpit:
+    build: ../apps/cockpit
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://cockpit:${POSTGRES_PASSWORD}@postgres:5432/cockpit
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET fehlt in infra/.env}
+      BETTER_AUTH_URL: ${COCKPIT_URL:-https://cockpit.gravaix.de}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Datenbank – nur intern erreichbar, kein Port nach außen.
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cockpit
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD fehlt in infra/.env}
+      POSTGRES_DB: cockpit
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cockpit -d cockpit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   caddy_data:
   caddy_config:
+  postgres_data:
