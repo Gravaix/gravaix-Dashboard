@@ -3,11 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { MailFehler } from "@/components/mail/mail-fehler";
+import { VerlaufListe } from "@/components/mail/verlauf-liste";
 import { MailFormular, type Vorlage } from "@/components/mail/mail-formular";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { adresseLang, langDatum, mailLink, nachrichtLink } from "@/lib/mail/format";
-import { mailLesen, type Adresse } from "@/lib/mail/imap";
+import { mailLesen, verlauf, type Adresse } from "@/lib/mail/imap";
 
 export const metadata: Metadata = { title: "Neue Mail" };
 
@@ -43,9 +44,10 @@ export default async function NeueMailPage({ searchParams }: PageProps<"/mails/n
   }
 
   if (!Number.isInteger(uid) || uid < 1) notFound();
-  let mail;
+  let mail, gespraech;
   try {
-    mail = await mailLesen(pfad, uid);
+    // Verlauf ist eine Zugabe: klappt die Suche nicht, wird die Mail trotzdem angezeigt.
+    [mail, gespraech] = await Promise.all([mailLesen(pfad, uid), verlauf(pfad, uid).catch(() => [])]);
   } catch (fehler) {
     return <MailFehler fehler={fehler} />;
   }
@@ -72,6 +74,9 @@ export default async function NeueMailPage({ searchParams }: PageProps<"/mails/n
       </div>
       <PageHeader title={allen ? "Allen antworten" : "Antworten"} />
       <MailFormular vorlage={vorlage} />
+      <div className="mt-8">
+        <VerlaufListe eintraege={gespraech} aktuell={{ pfad, uid }} titel="Worum es geht" />
+      </div>
       <p className="mt-4 text-xs text-muted-foreground">
         Die Antwort landet auch im Ordner „Gesendet“ und die ursprüngliche Mail wird als beantwortet markiert.{" "}
         <Link href={mailLink(pfad)} className="underline">
