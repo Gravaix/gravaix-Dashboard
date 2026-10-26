@@ -7,9 +7,10 @@ import { VerlaufListe } from "@/components/mail/verlauf-liste";
 import { GelesenKnopf } from "@/components/mail/gelesen-knopf";
 import { GesendetHinweis } from "@/components/mail/gesendet-hinweis";
 import { MailFrame } from "@/components/mail/mail-frame";
+import { VerschiebenLeiste } from "@/components/mail/verschieben-leiste";
 import { Button } from "@/components/ui/button";
 import { adresseLang, groesse, langDatum, mailLink, nachrichtLink } from "@/lib/mail/format";
-import { mailLesen, verlauf } from "@/lib/mail/imap";
+import { mailLesen, ordnerListe, verlauf } from "@/lib/mail/imap";
 
 export const metadata: Metadata = { title: "Mail" };
 
@@ -31,10 +32,14 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
   const suche = typeof params.suche === "string" ? params.suche : "";
   if (!Number.isInteger(uid) || uid < 1) notFound();
 
-  let mail, gespraech;
+  let mail, gespraech, ordner;
   try {
-    // Verlauf ist eine Zugabe: klappt die Suche nicht, wird die Mail trotzdem angezeigt.
-    [mail, gespraech] = await Promise.all([mailLesen(pfad, uid), verlauf(pfad, uid).catch(() => [])]);
+    // Verlauf und Ordner sind Zugaben: klappt das nicht, wird die Mail trotzdem angezeigt.
+    [mail, gespraech, ordner] = await Promise.all([
+      mailLesen(pfad, uid),
+      verlauf(pfad, uid).catch(() => []),
+      ordnerListe().catch(() => []),
+    ]);
   } catch (fehler) {
     return <MailFehler fehler={fehler} />;
   }
@@ -65,6 +70,7 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
           <GelesenKnopf key={uid} pfad={pfad} uid={uid} gelesen={mail.gelesen} />
         </div>
       </div>
+      <VerschiebenLeiste ordner={ordner} pfad={pfad} uid={uid} />
       <GesendetHinweis wert={params.gesendet} />
 
       <header className="grid gap-3">

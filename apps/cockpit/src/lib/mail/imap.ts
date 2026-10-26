@@ -4,8 +4,8 @@ import { simpleParser, type ParsedMail } from "mailparser";
 
 // Zugriff aufs IONOS-Postfach. Das Postfach bleibt die Quelle der Wahrheit:
 // Ordner werden zum Lesen nur lesend geöffnet (EXAMINE). Das Einzige, was das
-// Cockpit ändert, sind Markierungen (gelesen, beantwortet) und das Ablegen
-// selbst gesendeter Mails im Ordner „Gesendet“ – gelöscht wird nie etwas.
+// Cockpit ändert, sind Markierungen (gelesen, beantwortet), das Verschieben in
+// andere Ordner und das Ablegen gesendeter Mails in „Gesendet“ – gelöscht wird nie etwas.
 
 export class MailNichtEingerichtet extends Error {}
 
@@ -241,6 +241,29 @@ export async function anhangLaden(pfad: string, uid: number, nr: number) {
   const a = geladen?.mail.attachments[nr];
   if (!a) return null;
   return { name: a.filename || `anhang-${nr + 1}`, typ: a.contentType, inhalt: a.content };
+}
+
+/** Ziele fürs Verschieben: alle Ordner außer Papierkorb (Löschen gibt es im Cockpit nicht). */
+export function verschiebeZiele(ordner: Ordner[], aktuell: string) {
+  return ordner.filter((o) => o.pfad !== aktuell && o.spezial !== "\\Trash");
+}
+
+/** Der Ordner „Erledigt“ (bei Gravaix: 1 Kunden & Anfragen/Erledigt). */
+export function erledigtOrdner(ordner: Ordner[]) {
+  return ordner.find((o) => /(^|\/)erledigt$/i.test(o.pfad));
+}
+
+/** Mail in einen anderen Ordner verschieben. Gibt die neue UID im Zielordner zurück (falls der Server sie meldet). */
+export async function verschieben(pfad: string, uid: number, ziel: string): Promise<number | undefined> {
+  return mitOrdner(
+    pfad,
+    async (c) => {
+      const ergebnis = await c.messageMove(String(uid), ziel, { uid: true });
+      if (!ergebnis) throw new Error("Mail nicht gefunden – vielleicht schon verschoben?");
+      return ergebnis.uidMap?.get(uid);
+    },
+    true,
+  );
 }
 
 // ---------------------------------------------------------------------------
