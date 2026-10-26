@@ -24,7 +24,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 ### 1.2 Mails
 - [x] IONOS-Postfach anbinden (IMAP), Ordner anzeigen
 - [x] Mails lesen und Anhänge öffnen (nur lesend, Bilder erst nach Klick)
-- [ ] Mails suchen, als gelesen markieren
+- [x] Mails suchen, als gelesen markieren
 - [ ] Antworten und neue Mails senden (SMTP)
 - [ ] Mails in Ordner verschieben, als erledigt markieren
 

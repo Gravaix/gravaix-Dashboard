@@ -1,8 +1,9 @@
 # Mails im Cockpit
 
 Das Cockpit zeigt das IONOS-Postfach info@gravaix.de an – Ordner, Mails, Anhänge.
-Das Postfach bleibt die Quelle der Wahrheit: Das Cockpit ändert dort nur den
-**Gelesen-Status**, sonst nichts. Senden und Verschieben kommen später.
+Das Postfach bleibt die Quelle der Wahrheit: Das Cockpit ändert dort nur
+Markierungen (gelesen, beantwortet) und legt gesendete Mails in „Gesendet“ ab.
+Gelöscht wird nie etwas. Verschieben kommt später.
 
 ## Einmalig einrichten (auf dem Server)
 
@@ -38,6 +39,12 @@ Danach die `.env` im Passwort-Manager aktualisieren (`cat ~/gravaix/infra/.env`)
 
 - **Gelesen:** Öffnest du eine ungelesene Mail, wird sie als gelesen markiert –
   auch in Apple Mail und am iPhone. Mit „Als ungelesen markieren“ stellst du das zurück.
+- **Senden:** „Neue Mail“ über der Liste oder „Antworten“ / „Allen antworten“ in
+  einer Mail. Raus geht eine Mail erst, wenn du nach „Senden …“ noch einmal
+  „Ja, jetzt senden“ bestätigst. Gesendete Mails liegen danach im Ordner
+  „Gesendet“, also auch in Apple Mail. Als Absender erscheint
+  „Gravaix Lasermanufaktur <info@gravaix.de>“ (änderbar mit `MAIL_ABSENDER_NAME`
+  in `infra/.env`). Vorerst nur Text, ohne Anhänge und ohne Signatur.
 - **Suchen:** Das Suchfeld über der Liste sucht im gerade geöffneten Ordner nach
   Absender, Empfänger, Betreff und Text der Mail.
 

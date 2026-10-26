@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ImageOff, Paperclip } from "lucide-react";
+import { ArrowLeft, ImageOff, Paperclip, Reply, ReplyAll } from "lucide-react";
 import { MailFehler } from "@/components/mail/mail-fehler";
 import { GelesenKnopf } from "@/components/mail/gelesen-knopf";
+import { GesendetHinweis } from "@/components/mail/gesendet-hinweis";
 import { MailFrame } from "@/components/mail/mail-frame";
 import { Button } from "@/components/ui/button";
 import { adresseLang, groesse, langDatum, mailLink, nachrichtLink } from "@/lib/mail/format";
@@ -46,8 +47,23 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
           <ArrowLeft />
           Zurück
         </Button>
-        <GelesenKnopf key={uid} pfad={pfad} uid={uid} gelesen={mail.gelesen} />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" render={<Link href={`/mails/neu?${new URLSearchParams({ ordner: pfad, uid: String(uid) })}`} />}>
+            <Reply />
+            Antworten
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href={`/mails/neu?${new URLSearchParams({ ordner: pfad, uid: String(uid), art: "allen" })}`} />}
+          >
+            <ReplyAll />
+            Allen antworten
+          </Button>
+          <GelesenKnopf key={uid} pfad={pfad} uid={uid} gelesen={mail.gelesen} />
+        </div>
       </div>
+      <GesendetHinweis wert={params.gesendet} />
 
       <header className="grid gap-3">
         <h1 className="text-xl font-semibold tracking-tight break-words">{mail.betreff}</h1>
