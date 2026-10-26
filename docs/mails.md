@@ -1,8 +1,8 @@
 # Mails im Cockpit
 
 Das Cockpit zeigt das IONOS-Postfach info@gravaix.de an – Ordner, Mails, Anhänge.
-Das Postfach bleibt die Quelle der Wahrheit: Das Cockpit **liest nur** und ändert
-dort nichts, auch nicht den Gelesen-Status. Senden, Verschieben und Suchen kommen später.
+Das Postfach bleibt die Quelle der Wahrheit: Das Cockpit ändert dort nur den
+**Gelesen-Status**, sonst nichts. Senden und Verschieben kommen später.
 
 ## Einmalig einrichten (auf dem Server)
 
@@ -35,6 +35,11 @@ dort nichts, auch nicht den Gelesen-Status. Senden, Verschieben und Suchen komme
 Danach die `.env` im Passwort-Manager aktualisieren (`cat ~/gravaix/infra/.env`).
 
 ## Gut zu wissen
+
+- **Gelesen:** Öffnest du eine ungelesene Mail, wird sie als gelesen markiert –
+  auch in Apple Mail und am iPhone. Mit „Als ungelesen markieren“ stellst du das zurück.
+- **Suchen:** Das Suchfeld über der Liste sucht im gerade geöffneten Ordner nach
+  Absender, Empfänger, Betreff und Text der Mail.
 
 - **Bilder von außen** werden erst nach Klick auf „Bilder laden“ angezeigt. So
   erfahren Absender nicht über Tracking-Pixel, dass du die Mail geöffnet hast.

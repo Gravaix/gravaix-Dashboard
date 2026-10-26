@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ImageOff, Paperclip } from "lucide-react";
 import { MailFehler } from "@/components/mail/mail-fehler";
+import { GelesenKnopf } from "@/components/mail/gelesen-knopf";
 import { MailFrame } from "@/components/mail/mail-frame";
 import { Button } from "@/components/ui/button";
 import { adresseLang, groesse, langDatum, mailLink, nachrichtLink } from "@/lib/mail/format";
@@ -25,6 +26,7 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
   const pfad = typeof params.ordner === "string" ? params.ordner : "INBOX";
   const uid = Number(params.uid);
   const bilder = params.bilder === "1";
+  const suche = typeof params.suche === "string" ? params.suche : "";
   if (!Number.isInteger(uid) || uid < 1) notFound();
 
   let mail;
@@ -39,11 +41,12 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
 
   return (
     <article className="grid gap-5">
-      <div>
-        <Button variant="ghost" size="sm" render={<Link href={mailLink(pfad)} />}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Button variant="ghost" size="sm" render={<Link href={mailLink(pfad, suche ? { suche } : {})} />}>
           <ArrowLeft />
           Zurück
         </Button>
+        <GelesenKnopf key={uid} pfad={pfad} uid={uid} gelesen={mail.gelesen} />
       </div>
 
       <header className="grid gap-3">
@@ -81,7 +84,7 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
             <ImageOff className="size-4" />
             Bilder von außen sind blockiert (Schutz vor Tracking).
           </span>
-          <Button variant="outline" size="sm" render={<Link href={nachrichtLink(pfad, uid, { bilder: "1" })} />}>
+          <Button variant="outline" size="sm" render={<Link href={nachrichtLink(pfad, uid, { bilder: "1", ...(suche ? { suche } : {}) })} />}>
             Bilder laden
           </Button>
         </div>
