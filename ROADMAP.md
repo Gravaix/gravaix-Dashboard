@@ -9,7 +9,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] Server absichern: eigener Nutzer, SSH nur per Key, Firewall (ufw), Fail2ban, automatische Sicherheitsupdates
 - [x] Docker + Docker Compose installieren (Caddy kommt als Container)
 - [x] DNS bei IONOS: A-Records für `cockpit` und `cal` auf die VPS-IP
-- [ ] Deployment: Code aus GitHub auf den Server holen und starten (Skript oder GitHub Action)
+- [x] Deployment: Code per Deploy-Key auf den Server geholt, Caddy läuft mit HTTPS (Automatisierung folgt)
 - [ ] Tägliches Backup eingerichtet und einmal Wiederherstellung getestet
 
 ## Phase 1: Cockpit (`cockpit.gravaix.de`)
