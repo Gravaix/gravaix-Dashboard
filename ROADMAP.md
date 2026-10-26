@@ -6,8 +6,8 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] GitHub-Repo `gravaix-dashboard` (privat) mit 2FA-Account
 - [x] Claude Code mit Repo verbunden
 - [x] IONOS VPS L+ gebucht (Ubuntu 24.04, 8 GB RAM, Rechenzentrum Spanien), SSH-Key per Cloud-Config hinterlegt
-- [ ] Server absichern: eigener Nutzer, SSH nur per Key, Firewall (ufw), Fail2ban, automatische Sicherheitsupdates
-- [ ] Docker + Docker Compose + Caddy installieren
+- [x] Server absichern: eigener Nutzer, SSH nur per Key, Firewall (ufw), Fail2ban, automatische Sicherheitsupdates
+- [x] Docker + Docker Compose installieren (Caddy kommt als Container)
 - [ ] DNS bei IONOS: A-Records für `cockpit` und `cal` auf die VPS-IP
 - [ ] Deployment: Code aus GitHub auf den Server holen und starten (Skript oder GitHub Action)
 - [ ] Tägliches Backup eingerichtet und einmal Wiederherstellung getestet
