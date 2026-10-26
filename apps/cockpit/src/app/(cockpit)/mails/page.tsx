@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Flag, Info, Paperclip, Reply, Search, X } from "lucide-react";
+import { Flag, Info, Paperclip, PenLine, Reply, Search, X } from "lucide-react";
+import { GesendetHinweis } from "@/components/mail/gesendet-hinweis";
 import { MailFehler } from "@/components/mail/mail-fehler";
 import { OrdnerAuswahl } from "@/components/mail/ordner-auswahl";
 import { OrdnerListe } from "@/components/mail/ordner-liste";
@@ -50,6 +51,7 @@ export default async function MailsPage({ searchParams }: PageProps<"/mails">) {
           <OrdnerListe ordner={ordner} aktiv={pfad} />
         </aside>
         <section className="min-w-0">
+          <GesendetHinweis wert={params.gesendet} />
           <form action="/mails" role="search" className="mb-4 flex gap-2">
             <input type="hidden" name="ordner" value={pfad} />
             <div className="relative flex-1">
@@ -72,6 +74,10 @@ export default async function MailsPage({ searchParams }: PageProps<"/mails">) {
                 <X />
               </Button>
             )}
+            <Button className="h-10" aria-label="Neue Mail" render={<Link href="/mails/neu" />}>
+              <PenLine />
+              <span className="hidden sm:inline">Neue Mail</span>
+            </Button>
           </form>
           {mails.length === 0 ? (
             <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
@@ -126,7 +132,7 @@ export default async function MailsPage({ searchParams }: PageProps<"/mails">) {
           )}
           <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
             <Info className="size-3.5" />
-            Geöffnete Mails gelten als gelesen, auch in Apple Mail. Sonst ändert das Cockpit im Postfach nichts.
+            Geöffnete Mails gelten als gelesen, auch in Apple Mail. Gesendet wird nur nach deiner Bestätigung, gelöscht wird nie etwas.
           </p>
         </section>
       </div>

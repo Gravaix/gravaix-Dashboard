@@ -4,7 +4,8 @@ import { simpleParser, type ParsedMail } from "mailparser";
 
 // Zugriff aufs IONOS-Postfach. Das Postfach bleibt die Quelle der Wahrheit:
 // Ordner werden zum Lesen nur lesend geöffnet (EXAMINE). Das Einzige, was das
-// Cockpit ändert, ist der Gelesen-Status (gelesenSetzen) – gelöscht wird nie etwas.
+// Cockpit ändert, sind Markierungen (gelesen, beantwortet) und das Ablegen
+// selbst gesendeter Mails im Ordner „Gesendet“ – gelöscht wird nie etwas.
 
 export class MailNichtEingerichtet extends Error {}
 
@@ -190,6 +191,8 @@ async function ladeMail(pfad: string, uid: number): Promise<{ kopf: MailKopf; ma
 export type Anhang = { nr: number; name: string; typ: string; groesse: number };
 
 export type MailInhalt = MailKopf & {
+  messageId?: string;
+  referenzen: string[];
   cc: Adresse[];
   antwortAn: Adresse[];
   html: string | null;
@@ -220,6 +223,8 @@ export async function mailLesen(pfad: string, uid: number): Promise<MailInhalt |
 
   return {
     ...kopf,
+    messageId: mail.messageId,
+    referenzen: typeof mail.references === "string" ? [mail.references] : (mail.references ?? []),
     cc: zuAdressen(mail.cc),
     antwortAn: zuAdressen(mail.replyTo),
     html,
@@ -236,4 +241,24 @@ export async function anhangLaden(pfad: string, uid: number, nr: number) {
   const a = geladen?.mail.attachments[nr];
   if (!a) return null;
   return { name: a.filename || `anhang-${nr + 1}`, typ: a.contentType, inhalt: a.content };
+}
+
+// ---------------------------------------------------------------------------
+// Nach dem Senden
+
+/** Selbst gesendete Mail im Ordner „Gesendet“ ablegen (IONOS macht das beim Senden nicht von selbst). */
+export async function gesendetAblegen(roh: Buffer) {
+  await mitPostfach(async (c) => {
+    const liste = await c.list();
+    const gesendet =
+      liste.find((o) => o.specialUse === "\\Sent")?.path ??
+      liste.find((o) => /^(gesendet|gesendete objekte|sent|sent items)$/i.test(o.name))?.path;
+    if (!gesendet) throw new Error("Ordner „Gesendet“ nicht gefunden");
+    await c.append(gesendet, roh, ["\\Seen"]);
+  });
+}
+
+/** Ursprüngliche Mail als beantwortet markieren (wie Apple Mail, Pfeil-Symbol). */
+export async function beantwortetMarkieren(pfad: string, uid: number) {
+  await mitOrdner(pfad, (c) => c.messageFlagsAdd(String(uid), ["\\Answered"], { uid: true }), true);
 }
