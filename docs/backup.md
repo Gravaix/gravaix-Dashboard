@@ -98,6 +98,19 @@ in Frankfurt, Access Key + Secret Key (alles im Passwort-Manager).
 
    (`DATEINAME` zeigt `backup-holen.sh` am Ende an.)
 
+### Wenn der Upload nicht klappt
+
+- `InvalidAccessKeyId` oder `is a file not a directory`: Access Key und Secret Key
+  sind falsch oder **vertauscht**. Bei IONOS ist der Access Key der längere
+  (92 Zeichen), der Secret Key hat 64. Länge prüfen, ohne die Schlüssel anzuzeigen:
+
+  ```bash
+  awk -F= '/^BACKUP_S3_(ACCESS_KEY|SECRET_KEY)=/{print $1, "→", length($2), "Zeichen"}' ~/gravaix/infra/.env
+  ```
+
+- Werte am besten mit den Kopier-Knöpfen im DCD kopieren
+  (Object Storage → Schlüsselverwaltung → „Key“ und „Secret“).
+
 ### Notfall: Server komplett weg
 
 Auf einem neuen Server: Repo klonen, `infra/.env` aus dem Passwort-Manager

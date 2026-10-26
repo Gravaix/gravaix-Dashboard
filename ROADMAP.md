@@ -11,7 +11,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] DNS bei IONOS: A-Records für `cockpit` und `cal` auf die VPS-IP
 - [x] Deployment: Code per Deploy-Key auf den Server geholt, Caddy läuft mit HTTPS (Automatisierung folgt)
 - [x] Tägliches Backup eingerichtet und einmal Wiederherstellung getestet (PostgreSQL, nachts 3:30, 14 Tage)
-- [ ] Backup-Kopie außerhalb des Servers (z. B. IONOS S3 Object Storage, verschlüsselt)
+- [x] Backup-Kopie außerhalb des Servers: verschlüsselt im IONOS Object Storage Frankfurt (Objektsperre 30 Tage), Wiederherstellung getestet
 
 ## Phase 1: Cockpit (`cockpit.gravaix.de`)
 

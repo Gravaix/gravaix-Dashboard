@@ -23,6 +23,11 @@ services:
       DATABASE_URL: postgresql://cockpit:${POSTGRES_PASSWORD}@postgres:5432/cockpit
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET fehlt in infra/.env}
       BETTER_AUTH_URL: ${COCKPIT_URL:-https://cockpit.gravaix.de}
+      # IONOS-Postfach (nur lesen). Leer = Mail-Bereich zeigt einen Hinweis.
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_IMAP_HOST: ${MAIL_IMAP_HOST:-imap.ionos.de}
+      MAIL_IMAP_PORT: ${MAIL_IMAP_PORT:-993}
     depends_on:
       postgres:
         condition: service_healthy
