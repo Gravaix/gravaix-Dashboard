@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { Send, TriangleAlert } from "lucide-react";
-import { senden, type SendenStand } from "@/app/(cockpit)/mails/actions";
+import { adressVorschlaege, senden, type SendenStand } from "@/app/(cockpit)/mails/actions";
+import { AdressFeld, type Vorschlag } from "@/components/mail/adress-feld";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,13 @@ export type Vorlage = { an: string; cc: string; betreff: string; text: string; o
 export function MailFormular({ vorlage }: { vorlage: Vorlage }) {
   const [stand, aktion, laeuft] = useActionState<SendenStand, FormData>(senden, {});
   const [pruefen, setPruefen] = useState<{ an: string; betreff: string } | null>(null);
+  const [vorschlaege, setVorschlaege] = useState<Vorschlag[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Adressvorschläge im Hintergrund laden – das Formular ist sofort benutzbar.
+  useEffect(() => {
+    adressVorschlaege().then(setVorschlaege, () => {});
+  }, []);
 
   function zurPruefung() {
     const form = formRef.current;
@@ -32,7 +39,14 @@ export function MailFormular({ vorlage }: { vorlage: Vorlage }) {
   return (
     <form
       ref={formRef}
-      action={aktion}       className="grid gap-4"
+      className="grid gap-4"
+      // Selbst abschicken statt action={…}: sonst leert React das Formular auch dann,
+      // wenn das Senden fehlschlägt, und der getippte Text wäre weg.
+      onSubmit={(e) => {
+        e.preventDefault();
+        const daten = new FormData(e.currentTarget);
+        startTransition(() => aktion(daten));
+      }}
       onChange={() => setPruefen(null)}
       // Enter in einem Feld darf nie direkt senden – nur der Knopf „Ja, jetzt senden“.
       onKeyDown={(e) => {
@@ -44,11 +58,19 @@ export function MailFormular({ vorlage }: { vorlage: Vorlage }) {
 
       <div className="grid gap-1.5">
         <Label htmlFor="an">An</Label>
-        <Input id="an" name="an" defaultValue={vorlage.an} required autoComplete="off" className="h-10" placeholder="kunde@firma.de" />
+        <AdressFeld
+          id="an"
+          name="an"
+          defaultValue={vorlage.an}
+          required
+          placeholder="Name oder Adresse eintippen …"
+          vorschlaege={vorschlaege}
+          onAuswahl={() => setPruefen(null)}
+        />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="cc">Cc</Label>
-        <Input id="cc" name="cc" defaultValue={vorlage.cc} autoComplete="off" className="h-10" />
+        <AdressFeld id="cc" name="cc" defaultValue={vorlage.cc} vorschlaege={vorschlaege} onAuswahl={() => setPruefen(null)} />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="betreff">Betreff</Label>

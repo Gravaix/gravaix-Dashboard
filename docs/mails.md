@@ -45,6 +45,10 @@ Danach die `.env` im Passwort-Manager aktualisieren (`cat ~/gravaix/infra/.env`)
   „Gesendet“, also auch in Apple Mail. Als Absender erscheint
   „Gravaix Lasermanufaktur <info@gravaix.de>“ (änderbar mit `MAIL_ABSENDER_NAME`
   in `infra/.env`). Vorerst nur Text, ohne Anhänge und ohne Signatur.
+- **Adressvorschläge:** Beim Tippen in „An“ oder „Cc“ schlägt das Cockpit Adressen
+  vor, mit denen du schon Mails ausgetauscht hast (aus allen Ordnern außer Spam
+  und Papierkorb, häufige zuerst). Auswahl mit Klick oder Pfeiltasten + Enter.
+  Die Liste wird alle 30 Minuten und nach jedem Senden aufgefrischt.
 - **Verlauf:** Unter jeder Mail stehen alle Mails derselben Unterhaltung – aus
   dem Posteingang, aus „Gesendet“ und aus dem aktuellen Ordner, älteste zuerst.
   Beim Antworten steht der Verlauf unter dem Formular („Worum es geht“).

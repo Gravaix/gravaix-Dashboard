@@ -1,7 +1,7 @@
 import "server-only";
 import nodemailer from "nodemailer";
 import MailComposer from "nodemailer/lib/mail-composer";
-import { MailNichtEingerichtet, beantwortetMarkieren, gesendetAblegen, mailLesen } from "@/lib/mail/imap";
+import { MailNichtEingerichtet, adressbuchVeraltet, beantwortetMarkieren, gesendetAblegen, mailLesen } from "@/lib/mail/imap";
 
 // Versand über das IONOS-Postfach (SMTP). Wird nur von der Server-Aktion „Senden“
 // aufgerufen, also erst nachdem Celiano im Cockpit ausdrücklich bestätigt hat.
@@ -61,6 +61,8 @@ export async function mailSenden(neu: NeueMail) {
     envelope: { from: absender.address, to: [...neu.an, ...neu.cc] },
     raw: roh,
   });
+
+  adressbuchVeraltet();
 
   // Ab hier ist die Mail raus. Fehler beim Ablegen dürfen nicht so aussehen, als wäre sie nicht gesendet.
   const hinweise: string[] = [];

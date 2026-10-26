@@ -329,6 +329,72 @@ export async function verlauf(pfad: string, uid: number): Promise<VerlaufEintrag
 }
 
 // ---------------------------------------------------------------------------
+// Adressbuch für Vorschläge beim Schreiben
+
+export type Kontakt = { name?: string; adresse: string; anzahl: number; zuletzt: number };
+
+// Automatische Absender nicht vorschlagen.
+const KEIN_KONTAKT = /(no-?reply|do-?not-?reply|mailer-daemon|postmaster|bounce|notification|benachrichtigung)/i;
+const ADRESSBUCH_GUELTIG = 30 * 60_000;
+let adressbuch: { stand: number; kontakte: Kontakt[]; laden?: Promise<Kontakt[]> } | null = null;
+
+/**
+ * Alle Adressen, mit denen Mails ausgetauscht wurden (Absender, Empfänger, Cc aus allen
+ * Ordnern außer Spam/Papierkorb). Häufige und kürzliche zuerst. Wird 30 Minuten im
+ * Speicher gehalten, das Zusammensuchen dauert ein paar Sekunden.
+ */
+export async function adressbuchLaden(): Promise<Kontakt[]> {
+  if (adressbuch && Date.now() - adressbuch.stand < ADRESSBUCH_GUELTIG) return adressbuch.kontakte;
+  if (adressbuch?.laden) return adressbuch.laden;
+
+  const laden = mitPostfach(async (c) => {
+    const eigene = (process.env.MAIL_USER ?? "").toLowerCase();
+    const sammlung = new Map<string, Kontakt>();
+    const ordner = (await c.list()).filter(
+      (o) => !o.flags.has("\\Noselect") && !o.flags.has("\\NonExistent") && o.specialUse !== "\\Junk" && o.specialUse !== "\\Trash",
+    );
+    for (const o of ordner) {
+      const lock = await c.getMailboxLock(o.path, { readOnly: true });
+      try {
+        if (!c.mailbox || !c.mailbox.exists) continue;
+        for await (const m of c.fetch("1:*", { envelope: true, internalDate: true })) {
+          const zeit = new Date(m.envelope?.date ?? m.internalDate ?? 0).getTime() || 0;
+          for (const a of [...(m.envelope?.from ?? []), ...(m.envelope?.to ?? []), ...(m.envelope?.cc ?? [])]) {
+            const adresse = a.address?.trim().toLowerCase();
+            if (!adresse || adresse === eigene || KEIN_KONTAKT.test(adresse)) continue;
+            const k = sammlung.get(adresse) ?? { adresse, anzahl: 0, zuletzt: 0 };
+            k.anzahl++;
+            if (zeit >= k.zuletzt) {
+              k.zuletzt = zeit;
+              if (a.name && a.name !== a.address) k.name = a.name;
+            }
+            sammlung.set(adresse, k);
+          }
+        }
+      } finally {
+        lock.release();
+      }
+    }
+    return [...sammlung.values()].sort((a, b) => b.anzahl - a.anzahl || b.zuletzt - a.zuletzt);
+  });
+
+  adressbuch = { stand: adressbuch?.stand ?? 0, kontakte: adressbuch?.kontakte ?? [], laden };
+  try {
+    const kontakte = await laden;
+    adressbuch = { stand: Date.now(), kontakte };
+    return kontakte;
+  } catch (fehler) {
+    adressbuch = adressbuch.kontakte.length ? { stand: adressbuch.stand, kontakte: adressbuch.kontakte } : null;
+    throw fehler;
+  }
+}
+
+/** Nach dem Senden neu laden, damit neue Empfänger gleich vorgeschlagen werden. */
+export function adressbuchVeraltet() {
+  if (adressbuch) adressbuch.stand = 0;
+}
+
+// ---------------------------------------------------------------------------
 // Nach dem Senden
 
 /** Selbst gesendete Mail im Ordner „Gesendet“ ablegen (IONOS macht das beim Senden nicht von selbst). */
