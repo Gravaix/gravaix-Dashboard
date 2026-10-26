@@ -105,6 +105,12 @@ model Auftrag {
   titel      String
   kunde      String
   kundeEmail String?
+  produkt    String?
+  menge      Int?
+  /// Gravurtext, Schrift, Position, Farbe … (Freitext)
+  gravur     String?
+  /// Gesamtpreis netto in Cent (bis Ende 2026 = Endpreis, Kleinunternehmer §19 UStG)
+  preisCent  Int?
   status     AuftragStatus @default(ANFRAGE)
   deadline   DateTime?     @db.Date
   notizen    String?

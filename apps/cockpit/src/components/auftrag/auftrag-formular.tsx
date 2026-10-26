@@ -13,12 +13,18 @@ export type AuftragWerte = {
   titel: string;
   kunde: string;
   kundeEmail: string;
+  produkt: string;
+  menge: string;
+  gravur: string;
+  preis: string; // „249,90“ oder leer
   deadline: string; // JJJJ-MM-TT oder leer
   status: string;
   notizen: string;
 };
 
 const FELD = "h-10";
+const TEXTFELD =
+  "w-full rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30";
 
 /** Formular zum Anlegen und Bearbeiten eines Auftrags. */
 export function AuftragFormular({
@@ -58,7 +64,32 @@ export function AuftragFormular({
           <Input id="kundeEmail" name="kundeEmail" type="email" defaultValue={werte.kundeEmail} className={FELD} />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
+        <div className="grid gap-1.5">
+          <Label htmlFor="produkt">Produkt</Label>
+          <Input id="produkt" name="produkt" defaultValue={werte.produkt} className={FELD} placeholder="z. B. Kugelschreiber Metall, blau" />
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="menge">Menge</Label>
+          <Input id="menge" name="menge" type="number" min={1} step={1} inputMode="numeric" defaultValue={werte.menge} className={FELD} />
+        </div>
+      </div>
+      <div className="grid gap-1.5">
+        <Label htmlFor="gravur">Gravur / Druck</Label>
+        <textarea
+          id="gravur"
+          name="gravur"
+          defaultValue={werte.gravur}
+          rows={3}
+          className={TEXTFELD}
+          placeholder="Text, Schrift, Position, Größe, Farbe …"
+        />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-1.5">
+          <Label htmlFor="preis">Preis gesamt (netto, €)</Label>
+          <Input id="preis" name="preis" inputMode="decimal" defaultValue={werte.preis} className={FELD} placeholder="249,90" />
+        </div>
         <div className="grid gap-1.5">
           <Label htmlFor="deadline">Deadline</Label>
           <Input id="deadline" name="deadline" type="date" defaultValue={werte.deadline} className={FELD} />
@@ -81,10 +112,14 @@ export function AuftragFormular({
           name="notizen"
           defaultValue={werte.notizen}
           rows={6}
-          className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
-          placeholder="Material, Gravurtext, Absprachen …"
+          className={TEXTFELD}
+          placeholder="Absprachen, Material, Lieferadresse …"
         />
       </div>
+
+      <p className="-mt-2 text-xs text-muted-foreground">
+        Bis Ende 2026 ist der Nettopreis gleich dem Endpreis (Kleinunternehmer, §19 UStG).
+      </p>
 
       {stand.fehler && (
         <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">

@@ -8,6 +8,9 @@ als Karten in fünf Spalten: **Anfrage → Angebot → Produktion → Versand �
 - **Neuer Auftrag:** Knopf oben rechts. Pflicht sind nur „Was?“ und „Kunde“.
   Jeder Auftrag bekommt eine Nummer (z. B. `A-0007`), die du am Telefon oder im
   Betreff nennen kannst.
+- **Angaben:** Produkt, Menge, Gravur/Druck (Text, Schrift, Position …) und
+  Preis gesamt (netto). Den Preis kannst du wie gewohnt tippen: `249,90`,
+  `1.234,50` oder `12`. Bis Ende 2026 ist netto gleich Endpreis (Kleinunternehmer).
 - **Weiterschieben:** Mit den Pfeilen unten auf der Karte eine Spalte nach links
   oder rechts.
 - **Bearbeiten:** Auf die Karte tippen. Dort lassen sich alle Angaben und der
@@ -23,5 +26,4 @@ Server und sind im täglichen Backup enthalten.
 
 ## Kommt als Nächstes
 
-Produkt, Menge, Gravurdaten/Logo-Dateien, Preis mit MwSt.-Schalter und
-„Auftrag aus Mail anlegen“ (siehe `ROADMAP.md`, Abschnitt 1.3).
+Logo-Dateien am Auftrag, Preis mit MwSt.-Schalter und „Auftrag aus Mail anlegen“ (siehe `ROADMAP.md`, Abschnitt 1.3).

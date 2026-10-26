@@ -12,7 +12,18 @@ export default function NeuerAuftragPage() {
       <AuftragFormular
         aktion={auftragAnlegen}
         knopf="Auftrag anlegen"
-        werte={{ titel: "", kunde: "", kundeEmail: "", deadline: "", status: "ANFRAGE", notizen: "" }}
+        werte={{
+          titel: "",
+          kunde: "",
+          kundeEmail: "",
+          produkt: "",
+          menge: "",
+          gravur: "",
+          preis: "",
+          deadline: "",
+          status: "ANFRAGE",
+          notizen: "",
+        }}
       />
     </>
   );
