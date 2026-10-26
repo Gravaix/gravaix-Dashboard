@@ -3,9 +3,9 @@
 Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ihn getestet hat.
 
 ## Phase 0: Fundament
-- [ ] GitHub-Repo `gravaix-dashboard` (privat) mit 2FA-Account
-- [ ] Claude Code mit Repo verbunden
-- [ ] IONOS VPS gebucht (Ubuntu 24.04, mind. 4 GB RAM, besser 8 GB), SSH-Key hinterlegt
+- [x] GitHub-Repo `gravaix-dashboard` (privat) mit 2FA-Account
+- [x] Claude Code mit Repo verbunden
+- [x] IONOS VPS L+ gebucht (Ubuntu 24.04, 8 GB RAM, Rechenzentrum Spanien), SSH-Key per Cloud-Config hinterlegt
 - [ ] Server absichern: eigener Nutzer, SSH nur per Key, Firewall (ufw), Fail2ban, automatische Sicherheitsupdates
 - [ ] Docker + Docker Compose + Caddy installieren
 - [ ] DNS bei IONOS: A-Records für `cockpit` und `cal` auf die VPS-IP

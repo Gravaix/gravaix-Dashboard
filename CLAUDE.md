@@ -15,7 +15,7 @@ Dieses Repo enthält das interne Gravaix-Cockpit (Phase 1) und später den Onlin
 - Nach jedem Schritt: was wurde gemacht, wie testet Celiano es, was kommt als Nächstes
 
 ## Infrastruktur
-- Server: IONOS VPS, Ubuntu 24.04 LTS, Rechenzentrum Deutschland
+- Server: IONOS VPS L+ (4 vCores, 8 GB RAM, 240 GB NVMe), Ubuntu 24.04 LTS, Rechenzentrum Spanien (EU)
 - Zugriff nur per SSH-Key, kein Passwort-Login, kein Root-Login
 - Alles läuft in Docker Compose, Caddy als Reverse Proxy mit automatischem HTTPS
 - Domains (DNS bei IONOS):
@@ -41,7 +41,7 @@ Dieses Repo enthält das interne Gravaix-Cockpit (Phase 1) und später den Onlin
 - Das IONOS-Postfach bleibt die Quelle der Wahrheit. Das Cockpit ist ein Mail-Client, kein Ersatz. Mails nie automatisch löschen.
 - Mails werden **nie** ohne ausdrückliche Freigabe durch Celiano versendet (auch keine KI-Entwürfe)
 - Zugangsdaten nur in `.env` auf dem Server. Im Repo liegt nur `.env.example` ohne echte Werte. `.env` steht in `.gitignore`.
-- Kundendaten bleiben auf dem VPS in Deutschland (DSGVO)
+- Kundendaten bleiben auf dem VPS in der EU (DSGVO)
 - Tägliches Backup von PostgreSQL und Radicale, Backups regelmäßig testen
 - Kleine Commits mit verständlicher Beschreibung, neue Features auf eigenem Branch, Merge nach Celianos Test
 
