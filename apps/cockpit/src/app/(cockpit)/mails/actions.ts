@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { gelesenSetzen } from "@/lib/mail/imap";
+import { adressbuchLaden, gelesenSetzen, type Kontakt } from "@/lib/mail/imap";
 import { mailSenden } from "@/lib/mail/smtp";
 import { mailLink, nachrichtLink } from "@/lib/mail/format";
 
@@ -21,6 +21,13 @@ export async function gelesenMarkieren(pfad: string, uid: number, gelesen: boole
 
   await gelesenSetzen(pfad, uid, gelesen);
   revalidatePath("/mails");
+}
+
+/** Bekannte Adressen für die Vorschläge im An/Cc-Feld (höchstens 1000). */
+export async function adressVorschlaege(): Promise<Pick<Kontakt, "name" | "adresse">[]> {
+  await angemeldet();
+  const kontakte = await adressbuchLaden();
+  return kontakte.slice(0, 1000).map(({ name, adresse }) => ({ name, adresse }));
 }
 
 export type SendenStand = { fehler?: string };
