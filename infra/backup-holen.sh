@@ -15,7 +15,7 @@ BACKUP_DIR="${BACKUP_DIR:-$HOME/backups}"
 cd "$(dirname "$0")"
 source ./backup-lib.sh
 lade_backup_env "$PWD"
-extern_konfiguriert || { echo "Externe Kopie ist noch nicht eingerichtet (BACKUP_S3_* in infra/.env)."; exit 1; }
+extern_konfiguriert || { echo "Externe Kopie ist noch nicht eingerichtet. Leer in infra/.env: $(fehlende_werte)"; exit 1; }
 
 ZIEL="$BACKUP_DIR/aus-frankfurt"
 umask 077
