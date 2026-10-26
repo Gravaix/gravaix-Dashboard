@@ -88,3 +88,30 @@ model TwoFactor {
   @@index([userId])
   @@map("twoFactor")
 }
+
+// ---------------------------------------------------------------------------
+// Auftragsboard
+
+enum AuftragStatus {
+  ANFRAGE
+  ANGEBOT
+  PRODUKTION
+  VERSAND
+  ERLEDIGT
+}
+
+model Auftrag {
+  id         Int           @id @default(autoincrement())
+  titel      String
+  kunde      String
+  kundeEmail String?
+  status     AuftragStatus @default(ANFRAGE)
+  deadline   DateTime?     @db.Date
+  notizen    String?
+  erledigtAm DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([status])
+  @@map("auftrag")
+}
