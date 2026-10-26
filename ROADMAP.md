@@ -10,7 +10,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] Docker + Docker Compose installieren (Caddy kommt als Container)
 - [x] DNS bei IONOS: A-Records für `cockpit` und `cal` auf die VPS-IP
 - [x] Deployment: Code per Deploy-Key auf den Server geholt, Caddy läuft mit HTTPS
-- [ ] Automatische Updates: Server holt neue Versionen von `main` selbst (alle 5 Minuten, mit Backup vorher)
+- [x] Automatische Updates: Server holt neue Versionen von `main` selbst (alle 5 Minuten, mit Backup vorher)
 - [x] Tägliches Backup eingerichtet und einmal Wiederherstellung getestet (PostgreSQL, nachts 3:30, 14 Tage)
 - [x] Backup-Kopie außerhalb des Servers: verschlüsselt im IONOS Object Storage Frankfurt (Objektsperre 30 Tage), Wiederherstellung getestet
 

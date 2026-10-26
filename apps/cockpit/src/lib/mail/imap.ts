@@ -3,8 +3,8 @@ import { ImapFlow, type FetchMessageObject, type MessageStructureObject } from "
 import { simpleParser, type ParsedMail } from "mailparser";
 
 // Zugriff aufs IONOS-Postfach. Das Postfach bleibt die Quelle der Wahrheit:
-// Ordner werden nur lesend geöffnet (EXAMINE), dabei ändert sich nichts –
-// auch der Gelesen-Status bleibt, wie er ist.
+// Ordner werden zum Lesen nur lesend geöffnet (EXAMINE). Das Einzige, was das
+// Cockpit ändert, ist der Gelesen-Status (gelesenSetzen) – gelöscht wird nie etwas.
 
 export class MailNichtEingerichtet extends Error {}
 
@@ -30,9 +30,9 @@ async function mitPostfach<T>(fn: (client: ImapFlow) => Promise<T>): Promise<T> 
   }
 }
 
-async function mitOrdner<T>(pfad: string, fn: (client: ImapFlow) => Promise<T>): Promise<T> {
+async function mitOrdner<T>(pfad: string, fn: (client: ImapFlow) => Promise<T>, schreiben = false): Promise<T> {
   return mitPostfach(async (client) => {
-    const lock = await client.getMailboxLock(pfad, { readOnly: true });
+    const lock = await client.getMailboxLock(pfad, { readOnly: !schreiben });
     try {
       return await fn(client);
     } finally {
@@ -128,20 +128,52 @@ function zuKopf(m: FetchMessageObject): MailKopf {
   };
 }
 
-/** Neueste Mails zuerst, seitenweise (Seite 1 = die neuesten 50). */
-export async function mailListe(pfad: string, seite = 1) {
+const KOPF_FELDER = { uid: true, envelope: true, flags: true, internalDate: true, bodyStructure: true } as const;
+
+function sortieren(mails: MailKopf[]) {
+  return mails.sort((a, b) => (b.datum?.getTime() ?? 0) - (a.datum?.getTime() ?? 0) || b.uid - a.uid);
+}
+
+/**
+ * Neueste Mails zuerst, seitenweise (Seite 1 = die neuesten 50).
+ * Mit Suchbegriff: nur Mails im Ordner, die ihn in Absender, Empfänger, Betreff oder Text enthalten.
+ */
+export async function mailListe(pfad: string, seite = 1, suche = "") {
   return mitOrdner(pfad, async (c) => {
+    if (suche) {
+      const treffer = (await c.search({ text: suche }, { uid: true })) || [];
+      treffer.sort((a, b) => b - a); // höhere UID = später angekommen
+      const gesamt = treffer.length;
+      const seiten = Math.max(1, Math.ceil(gesamt / PRO_SEITE));
+      const uids = treffer.slice((seite - 1) * PRO_SEITE, seite * PRO_SEITE);
+      const mails: MailKopf[] = [];
+      if (uids.length) {
+        for await (const m of c.fetch(uids.join(","), KOPF_FELDER, { uid: true })) mails.push(zuKopf(m));
+      }
+      return { mails: sortieren(mails), gesamt, seiten };
+    }
+
     const gesamt = c.mailbox ? c.mailbox.exists : 0;
+    const seiten = Math.max(1, Math.ceil(gesamt / PRO_SEITE));
     const bis = gesamt - (seite - 1) * PRO_SEITE;
-    if (bis < 1) return { mails: [] as MailKopf[], gesamt, seiten: Math.max(1, Math.ceil(gesamt / PRO_SEITE)) };
+    if (bis < 1) return { mails: [] as MailKopf[], gesamt, seiten };
     const von = Math.max(1, bis - PRO_SEITE + 1);
     const mails: MailKopf[] = [];
-    for await (const m of c.fetch(`${von}:${bis}`, { uid: true, envelope: true, flags: true, internalDate: true, bodyStructure: true })) {
-      mails.push(zuKopf(m));
-    }
-    mails.sort((a, b) => (b.datum?.getTime() ?? 0) - (a.datum?.getTime() ?? 0) || b.uid - a.uid);
-    return { mails, gesamt, seiten: Math.max(1, Math.ceil(gesamt / PRO_SEITE)) };
+    for await (const m of c.fetch(`${von}:${bis}`, KOPF_FELDER)) mails.push(zuKopf(m));
+    return { mails: sortieren(mails), gesamt, seiten };
   });
+}
+
+/** Gelesen-Status im Postfach setzen – gilt danach auch in Apple Mail und am iPhone. */
+export async function gelesenSetzen(pfad: string, uid: number, gelesen: boolean) {
+  await mitOrdner(
+    pfad,
+    async (c) => {
+      if (gelesen) await c.messageFlagsAdd(String(uid), ["\\Seen"], { uid: true });
+      else await c.messageFlagsRemove(String(uid), ["\\Seen"], { uid: true });
+    },
+    true,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -149,7 +181,7 @@ export async function mailListe(pfad: string, seite = 1) {
 
 async function ladeMail(pfad: string, uid: number): Promise<{ kopf: MailKopf; mail: ParsedMail } | null> {
   return mitOrdner(pfad, async (c) => {
-    const m = await c.fetchOne(String(uid), { uid: true, envelope: true, flags: true, internalDate: true, bodyStructure: true, source: true }, { uid: true });
+    const m = await c.fetchOne(String(uid), { ...KOPF_FELDER, source: true }, { uid: true });
     if (!m || !m.source) return null;
     return { kopf: zuKopf(m), mail: await simpleParser(m.source) };
   });
