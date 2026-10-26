@@ -45,6 +45,11 @@ Danach die `.env` im Passwort-Manager aktualisieren (`cat ~/gravaix/infra/.env`)
   „Gesendet“, also auch in Apple Mail. Als Absender erscheint
   „Gravaix Lasermanufaktur <info@gravaix.de>“ (änderbar mit `MAIL_ABSENDER_NAME`
   in `infra/.env`). Vorerst nur Text, ohne Anhänge und ohne Signatur.
+- **Verlauf:** Unter jeder Mail stehen alle Mails derselben Unterhaltung – aus
+  dem Posteingang, aus „Gesendet“ und aus dem aktuellen Ordner, älteste zuerst.
+  Beim Antworten steht der Verlauf unter dem Formular („Worum es geht“).
+  Mails in anderen Ordnern (z. B. „1 Kunden & Anfragen“) erscheinen dort nur,
+  wenn du die Mail in genau diesem Ordner öffnest.
 - **Suchen:** Das Suchfeld über der Liste sucht im gerade geöffneten Ordner nach
   Absender, Empfänger, Betreff und Text der Mail.
 

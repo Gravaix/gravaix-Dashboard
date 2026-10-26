@@ -3,12 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ImageOff, Paperclip, Reply, ReplyAll } from "lucide-react";
 import { MailFehler } from "@/components/mail/mail-fehler";
+import { VerlaufListe } from "@/components/mail/verlauf-liste";
 import { GelesenKnopf } from "@/components/mail/gelesen-knopf";
 import { GesendetHinweis } from "@/components/mail/gesendet-hinweis";
 import { MailFrame } from "@/components/mail/mail-frame";
 import { Button } from "@/components/ui/button";
 import { adresseLang, groesse, langDatum, mailLink, nachrichtLink } from "@/lib/mail/format";
-import { mailLesen } from "@/lib/mail/imap";
+import { mailLesen, verlauf } from "@/lib/mail/imap";
 
 export const metadata: Metadata = { title: "Mail" };
 
@@ -30,9 +31,10 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
   const suche = typeof params.suche === "string" ? params.suche : "";
   if (!Number.isInteger(uid) || uid < 1) notFound();
 
-  let mail;
+  let mail, gespraech;
   try {
-    mail = await mailLesen(pfad, uid);
+    // Verlauf ist eine Zugabe: klappt die Suche nicht, wird die Mail trotzdem angezeigt.
+    [mail, gespraech] = await Promise.all([mailLesen(pfad, uid), verlauf(pfad, uid).catch(() => [])]);
   } catch (fehler) {
     return <MailFehler fehler={fehler} />;
   }
@@ -111,6 +113,7 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
       ) : (
         <div className="rounded-lg border p-4 text-sm whitespace-pre-wrap break-words">{mail.text || "(leer)"}</div>
       )}
+      <VerlaufListe eintraege={gespraech} aktuell={{ pfad, uid }} />
     </article>
   );
 }

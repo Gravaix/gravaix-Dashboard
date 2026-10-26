@@ -244,15 +244,97 @@ export async function anhangLaden(pfad: string, uid: number, nr: number) {
 }
 
 // ---------------------------------------------------------------------------
+// Verlauf (wie die Unterhaltungsansicht in Outlook)
+
+async function gesendetPfad(c: ImapFlow) {
+  const liste = await c.list();
+  return (
+    liste.find((o) => o.specialUse === "\\Sent")?.path ??
+    liste.find((o) => /^(gesendet|gesendete objekte|sent|sent items)$/i.test(o.name))?.path
+  );
+}
+
+export type VerlaufEintrag = MailKopf & { pfad: string; vorschau: string };
+
+const MAX_VERLAUF = 30;
+
+/** Nur den neuen Teil einer Mail: ohne Zitate („> …“) und ohne das, was ab „Am … schrieb“ / „Von:“ folgt. */
+function vorschau(text: string) {
+  const zeilen: string[] = [];
+  for (const z of text.split("\n")) {
+    if (/^\s*(Am .+ schrieb|On .+ wrote|-{2,}\s*(Original|Ursprüngliche)|Von:\s|From:\s)/i.test(z)) break;
+    if (/^\s*>/.test(z)) continue;
+    zeilen.push(z);
+  }
+  const kurz = zeilen.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return kurz.length > 600 ? `${kurz.slice(0, 600)} …` : kurz;
+}
+
+/**
+ * Alle Mails, die zu dieser Mail gehören – aus dem aktuellen Ordner, dem Posteingang
+ * und „Gesendet“. Zusammengehörig sind Mails über ihre Message-ID: Antworten verweisen
+ * mit In-Reply-To/References auf frühere Mails. Älteste zuerst.
+ */
+export async function verlauf(pfad: string, uid: number): Promise<VerlaufEintrag[]> {
+  return mitPostfach(async (c) => {
+    // 1. Kennungen dieser Mail und aller Mails, auf die sie sich bezieht
+    let ids: string[] = [];
+    {
+      const lock = await c.getMailboxLock(pfad, { readOnly: true });
+      try {
+        const m = await c.fetchOne(String(uid), { envelope: true, headers: ["references"] }, { uid: true });
+        if (!m) return [];
+        const bezuege = m.headers?.toString().match(/<[^<>\s]+>/g) ?? [];
+        ids = [m.envelope?.messageId, m.envelope?.inReplyTo, ...bezuege].filter((x): x is string => !!x);
+      } finally {
+        lock.release();
+      }
+    }
+    ids = [...new Set(ids)].slice(-20);
+    if (ids.length === 0) return [];
+
+    // 2. In den Ordnern nach diesen Mails und nach Antworten darauf suchen
+    const ordner = [...new Set([pfad, "INBOX", await gesendetPfad(c)].filter((x): x is string => !!x))];
+    const kopfzeile = (name: string, id: string) => ({ header: { [name]: id } });
+    const suche = { or: ids.flatMap((id) => [kopfzeile("message-id", id), kopfzeile("references", id)]) };
+    const gefunden = new Map<string, VerlaufEintrag>();
+
+    for (const ordnerPfad of ordner) {
+      const lock = await c.getMailboxLock(ordnerPfad, { readOnly: true });
+      try {
+        const treffer = ((await c.search(suche, { uid: true })) || []).sort((a, b) => b - a).slice(0, MAX_VERLAUF);
+        if (treffer.length === 0) continue;
+        const koepfe: { kopf: MailKopf; id: string; groesse: number }[] = [];
+        for await (const m of c.fetch(treffer.join(","), { ...KOPF_FELDER, size: true }, { uid: true })) {
+          const id = m.envelope?.messageId ?? `${ordnerPfad}/${m.uid}`;
+          if (!gefunden.has(id)) koepfe.push({ kopf: zuKopf(m), id, groesse: m.size ?? 0 });
+        }
+        for (const { kopf, id, groesse } of koepfe) {
+          let text = "";
+          if (groesse < 3_000_000) {
+            const roh = await c.fetchOne(String(kopf.uid), { source: true }, { uid: true });
+            if (roh && roh.source) text = (await simpleParser(roh.source)).text ?? "";
+          }
+          gefunden.set(id, { ...kopf, pfad: ordnerPfad, vorschau: vorschau(text) });
+        }
+      } finally {
+        lock.release();
+      }
+    }
+
+    return [...gefunden.values()]
+      .sort((a, b) => (a.datum?.getTime() ?? 0) - (b.datum?.getTime() ?? 0))
+      .slice(-MAX_VERLAUF);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Nach dem Senden
 
 /** Selbst gesendete Mail im Ordner „Gesendet“ ablegen (IONOS macht das beim Senden nicht von selbst). */
 export async function gesendetAblegen(roh: Buffer) {
   await mitPostfach(async (c) => {
-    const liste = await c.list();
-    const gesendet =
-      liste.find((o) => o.specialUse === "\\Sent")?.path ??
-      liste.find((o) => /^(gesendet|gesendete objekte|sent|sent items)$/i.test(o.name))?.path;
+    const gesendet = await gesendetPfad(c);
     if (!gesendet) throw new Error("Ordner „Gesendet“ nicht gefunden");
     await c.append(gesendet, roh, ["\\Seen"]);
   });
