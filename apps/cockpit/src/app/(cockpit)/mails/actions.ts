@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { adressbuchLaden, gelesenSetzen, type Kontakt } from "@/lib/mail/imap";
+import { adressbuchLaden, gelesenSetzen, ordnerListe, verschiebeZiele, verschieben, type Kontakt } from "@/lib/mail/imap";
 import { mailSenden } from "@/lib/mail/smtp";
 import { mailLink, nachrichtLink } from "@/lib/mail/format";
 
@@ -75,4 +75,28 @@ export async function senden(_vorher: SendenStand, form: FormData): Promise<Send
   revalidatePath("/mails");
   const extra = { gesendet: hinweise.length ? "teilweise" : "1" };
   redirect(antwortAuf ? nachrichtLink(antwortAuf.pfad, antwortAuf.uid, extra) : mailLink("INBOX", extra));
+}
+
+/**
+ * Mail verschieben (auch „Erledigt“). Danach zur Liste des Ordners, aus dem sie kam –
+ * mit Hinweis und „Rückgängig“. Bei „Rückgängig“ geht es zurück in die ursprüngliche Liste.
+ */
+export async function verschiebenAktion(form: FormData) {
+  await angemeldet();
+  const pfad = String(form.get("ordner") ?? "");
+  const uid = Number(form.get("uid"));
+  const ziel = String(form.get("ziel") ?? "");
+  const danach = String(form.get("danach") ?? "") || pfad;
+  if (!pfad || !ziel || !Number.isInteger(uid) || uid < 1) throw new Error("Ungültige Anfrage");
+
+  const ordner = await ordnerListe();
+  if (!ordner.some((o) => o.pfad === pfad) || !verschiebeZiele(ordner, pfad).some((o) => o.pfad === ziel)) {
+    throw new Error("Diesen Ordner gibt es nicht");
+  }
+
+  const neueUid = await verschieben(pfad, uid, ziel);
+  revalidatePath("/mails");
+  redirect(
+    mailLink(danach, danach === pfad ? { verschoben: ziel, von: pfad, ...(neueUid ? { neu: neueUid } : {}) } : {}),
+  );
 }

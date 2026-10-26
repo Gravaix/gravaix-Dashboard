@@ -2,8 +2,8 @@
 
 Das Cockpit zeigt das IONOS-Postfach info@gravaix.de an – Ordner, Mails, Anhänge.
 Das Postfach bleibt die Quelle der Wahrheit: Das Cockpit ändert dort nur
-Markierungen (gelesen, beantwortet) und legt gesendete Mails in „Gesendet“ ab.
-Gelöscht wird nie etwas. Verschieben kommt später.
+Markierungen (gelesen, beantwortet), verschiebt Mails auf deinen Klick in andere
+Ordner und legt gesendete Mails in „Gesendet“ ab. Gelöscht wird nie etwas.
 
 ## Einmalig einrichten (auf dem Server)
 
@@ -49,6 +49,10 @@ Danach die `.env` im Passwort-Manager aktualisieren (`cat ~/gravaix/infra/.env`)
   vor, mit denen du schon Mails ausgetauscht hast (aus allen Ordnern außer Spam
   und Papierkorb, häufige zuerst). Auswahl mit Klick oder Pfeiltasten + Enter.
   Die Liste wird alle 30 Minuten und nach jedem Senden aufgefrischt.
+- **Erledigt / Verschieben:** In einer geöffneten Mail verschiebt „Erledigt“ sie
+  nach „1 Kunden & Anfragen/Erledigt“. Mit „Verschieben nach …“ geht jeder andere
+  Ordner (außer Papierkorb). Danach steht oben in der Liste „Ansehen“ und
+  „Rückgängig“. Das Verschieben siehst du sofort auch in Apple Mail.
 - **Verlauf:** Unter jeder Mail stehen alle Mails derselben Unterhaltung – aus
   dem Posteingang, aus „Gesendet“ und aus dem aktuellen Ordner, älteste zuerst.
   Beim Antworten steht der Verlauf unter dem Formular („Worum es geht“).

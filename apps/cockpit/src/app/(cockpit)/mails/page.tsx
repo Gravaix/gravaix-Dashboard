@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Flag, Info, Paperclip, PenLine, Reply, Search, X } from "lucide-react";
 import { GesendetHinweis } from "@/components/mail/gesendet-hinweis";
 import { MailFehler } from "@/components/mail/mail-fehler";
+import { VerschobenHinweis } from "@/components/mail/verschoben-hinweis";
 import { OrdnerAuswahl } from "@/components/mail/ordner-auswahl";
 import { OrdnerListe } from "@/components/mail/ordner-liste";
 import { PageHeader } from "@/components/page-header";
@@ -52,6 +53,7 @@ export default async function MailsPage({ searchParams }: PageProps<"/mails">) {
         </aside>
         <section className="min-w-0">
           <GesendetHinweis wert={params.gesendet} />
+          <VerschobenHinweis ordner={ordner} ziel={params.verschoben} von={params.von} neu={params.neu} />
           <form action="/mails" role="search" className="mb-4 flex gap-2">
             <input type="hidden" name="ordner" value={pfad} />
             <div className="relative flex-1">
@@ -132,7 +134,7 @@ export default async function MailsPage({ searchParams }: PageProps<"/mails">) {
           )}
           <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
             <Info className="size-3.5" />
-            Geöffnete Mails gelten als gelesen, auch in Apple Mail. Gesendet wird nur nach deiner Bestätigung, gelöscht wird nie etwas.
+            Geöffnete Mails gelten als gelesen, auch in Apple Mail. Gesendet wird nur nach deiner Bestätigung, gelöscht wird nie etwas – auch nicht beim Verschieben.
           </p>
         </section>
       </div>
