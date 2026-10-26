@@ -5,18 +5,30 @@
 
 # Nur die BACKUP_*-Zeilen aus infra/.env übernehmen (der Rest geht nur Docker Compose an).
 lade_backup_env() {
-  local datei="$1/.env" k v
+  local datei="$1/.env" zeile k v
   [[ -f "$datei" ]] || return 0
-  while IFS='=' read -r k v || [[ -n "$k" ]]; do
-    if [[ "$k" == BACKUP_* && -z "${!k:-}" ]]; then
+  while IFS= read -r zeile || [[ -n "$zeile" ]]; do
+    zeile="${zeile%$'\r'}"
+    [[ "$zeile" == BACKUP_*=* ]] || continue
+    k="${zeile%%=*}"
+    v="${zeile#*=}"   # alles nach dem ersten "=", auch "=" am Ende (base64)
+    if [[ -z "${!k:-}" ]]; then
       export "$k=$v"
     fi
   done < "$datei"
   return 0
 }
 
+# Namen der Pflichtwerte, die noch leer sind (die Werte selbst werden nie ausgegeben).
+fehlende_werte() {
+  local k
+  for k in BACKUP_S3_BUCKET BACKUP_S3_ACCESS_KEY BACKUP_S3_SECRET_KEY BACKUP_CRYPT_PASSWORD; do
+    [[ -n "${!k:-}" ]] || printf '%s ' "$k"
+  done
+}
+
 extern_konfiguriert() {
-  [[ -n "${BACKUP_S3_BUCKET:-}" && -n "${BACKUP_S3_ACCESS_KEY:-}" && -n "${BACKUP_S3_SECRET_KEY:-}" && -n "${BACKUP_CRYPT_PASSWORD:-}" ]]
+  [[ -z "$(fehlende_werte)" ]]
 }
 
 # rclone im Container starten. Remote "sicher:" = verschlüsselter Ordner im Bucket.

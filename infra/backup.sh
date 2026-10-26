@@ -48,5 +48,5 @@ if extern_konfiguriert; then
   rclone_docker "$BACKUP_DIR/postgres" copy "/data/$(basename "$DATEI")" sicher:postgres/ --s3-upload-cutoff 100M --retries 5
   echo "[$(date '+%F %T')] Externe Kopie fertig."
 else
-  echo "[$(date '+%F %T')] Hinweis: externe Kopie noch nicht eingerichtet (BACKUP_S3_* in infra/.env)."
+  echo "[$(date '+%F %T')] Hinweis: externe Kopie noch nicht eingerichtet. Leer in infra/.env: $(fehlende_werte)"
 fi
