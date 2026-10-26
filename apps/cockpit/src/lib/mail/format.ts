@@ -22,7 +22,9 @@ export function adresseKurz(a?: Adresse) {
 }
 
 export function adresseLang(a: Adresse) {
-  return a.name && a.adresse ? `${a.name} <${a.adresse}>` : a.name || a.adresse || "";
+  // Manche Absender tragen ihre Adresse auch als Namen ein – dann nur einmal zeigen.
+  const name = a.name && a.name.toLowerCase() !== a.adresse?.toLowerCase() ? a.name : undefined;
+  return name && a.adresse ? `${name} <${a.adresse}>` : name || a.adresse || "";
 }
 
 export function groesse(bytes: number) {
