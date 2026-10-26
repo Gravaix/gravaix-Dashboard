@@ -24,6 +24,15 @@ Dieses Repo enthält das interne Gravaix-Cockpit (Phase 1) und später den Onlin
   - `shop.gravaix.de` → Shop (Phase 2)
   - `gravaix.de` (Hauptseite) läuft extern auf Onepage — **nicht anfassen**
 
+## Server-Zugang (nur in der lokalen Sitzung auf Celianos Mac)
+- Anmelden: `ssh celiano@cockpit.gravaix.de` (Celianos Schlüssel vom Mac; Root-Login und Passwort-Login sind gesperrt)
+- Repo auf dem Server: `~/gravaix`, Dienste: `cd ~/gravaix/infra && docker compose ...` (Nutzer ist in der docker-Gruppe, kein sudo nötig)
+- Logs: `~/deploy.log` (automatische Updates), `~/backups/backup.log`, `docker compose logs cockpit`
+- Updates laufen automatisch: Merge auf `main` → Server holt sie binnen 5 Minuten (`infra/deploy.sh`, siehe `docs/deployment.md`). Nicht von Hand im Repo-Ordner auf dem Server ändern.
+- `sudo` braucht Celianos Passwort: solche Befehle nicht selbst ausführen, sondern Celiano zum Kopieren geben
+- `infra/.env` enthält Zugangsdaten: nie ausgeben (kein `cat .env`), nur Namen prüfen, z. B. `grep -c '^MAIL_' .env`
+- Cloud-Sitzungen haben keinen SSH-Zugang zum Server – dort nur programmieren, mergen, und Celiano Befehle geben
+
 ## Stack
 - Next.js (App Router) + TypeScript
 - PostgreSQL + Prisma
