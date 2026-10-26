@@ -1,0 +1,30 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+
+export function LogoutButton() {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={pending}
+      onClick={() =>
+        startTransition(async () => {
+          await authClient.signOut();
+          router.replace("/login");
+          router.refresh();
+        })
+      }
+    >
+      <LogOut />
+      Abmelden
+    </Button>
+  );
+}
