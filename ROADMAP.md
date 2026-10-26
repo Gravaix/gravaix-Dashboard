@@ -8,7 +8,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] IONOS VPS L+ gebucht (Ubuntu 24.04, 8 GB RAM, Rechenzentrum Spanien), SSH-Key per Cloud-Config hinterlegt
 - [x] Server absichern: eigener Nutzer, SSH nur per Key, Firewall (ufw), Fail2ban, automatische Sicherheitsupdates
 - [x] Docker + Docker Compose installieren (Caddy kommt als Container)
-- [ ] DNS bei IONOS: A-Records für `cockpit` und `cal` auf die VPS-IP
+- [x] DNS bei IONOS: A-Records für `cockpit` und `cal` auf die VPS-IP
 - [ ] Deployment: Code aus GitHub auf den Server holen und starten (Skript oder GitHub Action)
 - [ ] Tägliches Backup eingerichtet und einmal Wiederherstellung getestet
 

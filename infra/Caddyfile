@@ -1,0 +1,19 @@
+# Caddy holt sich für jede Adresse automatisch ein kostenloses SSL-Zertifikat.
+{
+	email info@gravaix.de
+}
+
+# Cockpit – vorerst Platzhalter, später die Next.js-App
+cockpit.gravaix.de {
+	root * /srv/placeholder
+	file_server
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		Strict-Transport-Security "max-age=31536000"
+	}
+}
+
+# Kalender – vorerst Platzhalter, später Radicale
+cal.gravaix.de {
+	respond "Gravaix Kalender – im Aufbau" 200
+}

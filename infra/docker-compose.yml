@@ -1,0 +1,19 @@
+# Gravaix – Dienste auf dem VPS
+# Starten (auf dem Server, im Ordner infra):  docker compose up -d
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./placeholder:/srv/placeholder:ro
+      - caddy_data:/data        # SSL-Zertifikate
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
