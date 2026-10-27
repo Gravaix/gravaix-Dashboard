@@ -170,6 +170,25 @@ export type TerminDaten = {
   endeZeit: string;
 };
 
+/** Mail, aus der ein Termin entstanden ist (Kennung + Ort als Tipp, falls sie später verschoben wird). */
+export type TerminMail = { messageId: string; ordner: string; uid: number };
+
+/** Link „Mail öffnen“: steht als URL im Termin, damit er auch in Apple Kalender antippbar ist. */
+export function mailFindenLink(m: TerminMail) {
+  return `/mails/finden?${new URLSearchParams({ id: m.messageId, ordner: m.ordner, uid: String(m.uid) })}`;
+}
+
+/** URL eines Termins → Cockpit-Link zur Mail (nur eigene Links, keine fremden Adressen). */
+function mailAusUrl(url: unknown) {
+  if (typeof url !== "string") return undefined;
+  try {
+    const u = new URL(url, "http://x");
+    return u.pathname === "/mails/finden" && u.searchParams.get("id") ? `${u.pathname}${u.search}` : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 async function objektLaden(kalender: KalenderSlug, datei: string) {
   const { client, kalender: liste } = await kalenderListe();
   const cal = liste.find((k) => k.slug === kalender)?.cal;
@@ -205,7 +224,7 @@ export async function terminLesen(kalender: KalenderSlug, datei: string) {
       : tagVon(ende),
     endeZeit: ganztags ? "10:00" : zeitVon(ende),
   };
-  return { daten, etag: objekt.etag ?? "", wiederholt: event.isRecurring() };
+  return { daten, etag: objekt.etag ?? "", wiederholt: event.isRecurring(), mail: mailAusUrl(haupt.getFirstPropertyValue("url")) };
 }
 
 /** Prüft die Eingaben. Gibt einen Fehlertext zurück oder null. */
@@ -247,7 +266,7 @@ function eintragen(vevent: ICAL.Component, d: TerminDaten) {
   vevent.updatePropertyWithValue("sequence", Number.isFinite(seq) ? seq + 1 : 1);
 }
 
-function neuesIcs(d: TerminDaten, uid: string) {
+function neuesIcs(d: TerminDaten, uid: string, mail?: TerminMail) {
   const vcal = new ICAL.Component("vcalendar");
   vcal.updatePropertyWithValue("prodid", "-//Gravaix//Cockpit//DE");
   vcal.updatePropertyWithValue("version", "2.0");
@@ -255,6 +274,10 @@ function neuesIcs(d: TerminDaten, uid: string) {
   vevent.updatePropertyWithValue("uid", uid);
   vevent.updatePropertyWithValue("created", ICAL.Time.fromJSDate(new Date(), true));
   eintragen(vevent, d);
+  if (mail) {
+    const basis = (process.env.BETTER_AUTH_URL || "https://cockpit.gravaix.de").replace(/\/$/, "");
+    vevent.updatePropertyWithValue("url", `${basis}${mailFindenLink(mail)}`);
+  }
   vcal.addSubcomponent(vevent);
   return vcal.toString();
 }
@@ -267,13 +290,13 @@ function pruefeAntwort(antwort: Response, was: string) {
 }
 
 /** Neuen Termin anlegen. Gibt den Dateinamen zurück. */
-export async function terminAnlegen(kalender: KalenderSlug, d: TerminDaten) {
+export async function terminAnlegen(kalender: KalenderSlug, d: TerminDaten, mail?: TerminMail) {
   const { client, kalender: liste } = await kalenderListe();
   const cal = liste.find((k) => k.slug === kalender)?.cal;
   if (!cal) throw new Error("Diesen Kalender gibt es nicht (mehr).");
   const uid = crypto.randomUUID().toUpperCase();
   const datei = `${uid}.ics`;
-  pruefeAntwort(await client.createCalendarObject({ calendar: cal, filename: datei, iCalString: neuesIcs(d, uid) }), "Anlegen");
+  pruefeAntwort(await client.createCalendarObject({ calendar: cal, filename: datei, iCalString: neuesIcs(d, uid, mail) }), "Anlegen");
   return datei;
 }
 

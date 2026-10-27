@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ClipboardList, ClipboardPlus, ImageOff, Paperclip, Reply, ReplyAll } from "lucide-react";
+import { ArrowLeft, CalendarPlus, ClipboardList, ClipboardPlus, ImageOff, Paperclip, Reply, ReplyAll } from "lucide-react";
 import { MailFehler } from "@/components/mail/mail-fehler";
 import { VerlaufListe } from "@/components/mail/verlauf-liste";
 import { GelesenKnopf } from "@/components/mail/gelesen-knopf";
@@ -86,6 +86,14 @@ export default async function NachrichtPage({ searchParams }: PageProps<"/mails/
           >
             <ClipboardPlus />
             Auftrag anlegen
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href={`/kalender/neu?${new URLSearchParams({ ordner: pfad, uid: String(uid) })}`} />}
+          >
+            <CalendarPlus />
+            Termin anlegen
           </Button>
           <GelesenKnopf key={uid} pfad={pfad} uid={uid} gelesen={mail.gelesen} />
         </div>

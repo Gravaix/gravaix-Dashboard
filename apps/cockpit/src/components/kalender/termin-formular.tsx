@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KALENDER } from "@/lib/kalender/liste";
+import type { TerminMail } from "@/lib/kalender/termine";
 
 export type TerminWerte = {
   kalender: string;
@@ -29,14 +30,19 @@ function plusMinuten(zeit: string, minuten: number) {
   return `${String(Math.floor(gesamt / 60)).padStart(2, "0")}:${String(gesamt % 60).padStart(2, "0")}`;
 }
 
-/** Termin anlegen oder bearbeiten. `alt` = bestehender Termin (Kalender, Datei, Versionsstand). */
+/**
+ * Termin anlegen oder bearbeiten. `alt` = bestehender Termin (Kalender, Datei, Versionsstand),
+ * `mail` = neuer Termin aus einer Mail (wird im Termin verlinkt).
+ */
 export function TerminFormular({
   werte,
   alt,
+  mail,
   zurueck,
 }: {
   werte: TerminWerte;
   alt?: { kalender: string; datei: string; etag: string };
+  mail?: TerminMail;
   zurueck: string;
 }) {
   const [stand, ausfuehren, laeuft] = useActionState<TerminStand, FormData>(terminSpeichern, {});
@@ -61,6 +67,13 @@ export function TerminFormular({
           <input type="hidden" name="altKalender" value={alt.kalender} />
           <input type="hidden" name="altDatei" value={alt.datei} />
           <input type="hidden" name="etag" value={alt.etag} />
+        </>
+      )}
+      {mail && !alt && (
+        <>
+          <input type="hidden" name="mailId" value={mail.messageId} />
+          <input type="hidden" name="mailOrdner" value={mail.ordner} />
+          <input type="hidden" name="mailUid" value={mail.uid} />
         </>
       )}
 
