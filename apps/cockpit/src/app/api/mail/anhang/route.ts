@@ -1,9 +1,6 @@
 import { getSession } from "@/lib/session";
+import { ANZEIGBAR } from "@/lib/datei-typen";
 import { anhangLaden } from "@/lib/mail/imap";
-
-// Diese Typen dürfen direkt im Browser geöffnet werden (keine Skripte möglich).
-// Alles andere – vor allem HTML und SVG – wird nur heruntergeladen.
-const ANZEIGBAR = /^(application\/pdf|image\/(png|jpe?g|gif|webp|heic)|text\/plain)$/i;
 
 export async function GET(request: Request) {
   const session = await getSession();
