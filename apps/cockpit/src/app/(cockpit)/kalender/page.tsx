@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarPlus, ChevronLeft, ChevronRight, Plus, Smartphone } from "lucide-react";
-import { kalenderAnlegen } from "@/app/(cockpit)/kalender/actions";
+import { CalendarPlus, ChevronLeft, ChevronRight, Plus, RefreshCw, Smartphone } from "lucide-react";
+import { deadlinesAktion, kalenderAnlegen } from "@/app/(cockpit)/kalender/actions";
 import { MonatAnsicht, TagAnsicht, WocheAnsicht, ansichtLink, neuLink } from "@/components/kalender/ansichten";
 import { KalenderFehler } from "@/components/kalender/kalender-fehler";
 import { PageHeader } from "@/components/page-header";
@@ -56,6 +56,13 @@ function zeitraum(ansicht: Ansicht, datum: string) {
   };
 }
 
+/** „3-1“ → „Deadlines abgeglichen: 3 eingetragen, 1 entfernt.“ */
+function deadlineText(wert: string) {
+  const [ein, raus] = wert.split("-").map(Number);
+  if (!ein && !raus) return "Deadlines abgeglichen – alles war schon aktuell.";
+  return `Deadlines abgeglichen: ${ein || 0} eingetragen/aktualisiert, ${raus || 0} entfernt.`;
+}
+
 export default async function KalenderPage({ searchParams }: PageProps<"/kalender">) {
   const params = await searchParams;
   const ansicht: Ansicht = ANSICHTEN.some((a) => a.wert === params.ansicht) ? (params.ansicht as Ansicht) : "woche";
@@ -93,6 +100,9 @@ export default async function KalenderPage({ searchParams }: PageProps<"/kalende
       )}
       {angelegt > 0 && (
         <p className="mb-4 rounded-lg bg-muted px-3 py-2 text-sm">{angelegt === 1 ? "1 Kalender" : `${angelegt} Kalender`} angelegt.</p>
+      )}
+      {typeof params.deadlines === "string" && (
+        <p className="mb-4 rounded-lg bg-muted px-3 py-2 text-sm">{deadlineText(params.deadlines)}</p>
       )}
       {params.geloescht === "1" && <p className="mb-4 rounded-lg bg-muted px-3 py-2 text-sm">Termin gelöscht.</p>}
       {typeof params.fehler === "string" && (
@@ -140,14 +150,24 @@ export default async function KalenderPage({ searchParams }: PageProps<"/kalende
       {ansicht === "woche" && <WocheAnsicht termine={termine} tage={tage} />}
       {ansicht === "tag" && <TagAnsicht termine={termine} tag={datum} />}
 
-      <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        {KALENDER.map((k) => (
-          <li key={k.slug} className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full" style={{ backgroundColor: k.farbe }} aria-hidden />
-            {k.name}
-          </li>
-        ))}
-      </ul>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          {KALENDER.map((k) => (
+            <li key={k.slug} className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-full" style={{ backgroundColor: k.farbe }} aria-hidden />
+              {k.name}
+            </li>
+          ))}
+        </ul>
+        {fehlen.length === 0 && (
+          <form action={deadlinesAktion}>
+            <Button type="submit" variant="ghost" size="sm" className="text-muted-foreground" title="Läuft sonst automatisch bei jeder Änderung am Auftrag">
+              <RefreshCw />
+              Deadlines abgleichen
+            </Button>
+          </form>
+        )}
+      </div>
 
       <details className="mt-6 max-w-xl rounded-xl border p-3 text-sm">
         <summary className="flex cursor-pointer items-center gap-2 font-medium">
