@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { kalenderEinrichten } from "@/lib/kalender/caldav";
+import { deadlinesAbgleichen, deadlinesNachziehen } from "@/lib/kalender/deadlines";
 import {
   TerminGeaendert,
   istDatei,
@@ -29,12 +30,29 @@ export async function kalenderAnlegen() {
   let ziel: string;
   try {
     const angelegt = await kalenderEinrichten();
+    if (angelegt.length) await deadlinesNachziehen();
     ziel = `/kalender?${new URLSearchParams({ angelegt: String(angelegt.length) })}`;
   } catch (fehler) {
     ziel = `/kalender?${new URLSearchParams({ fehler: fehler instanceof Error ? fehler.message.slice(0, 300) : "Unbekannter Fehler" })}`;
   }
   revalidatePath("/kalender");
   redirect(ziel);
+}
+
+/** Deadlines aus dem Auftragsboard jetzt in den Kalender „Aufträge“ übernehmen (läuft sonst bei jeder Auftragsänderung). */
+export async function deadlinesAktion() {
+  await angemeldet();
+  let ergebnis: Record<string, string>;
+  try {
+    const r = await deadlinesAbgleichen();
+    ergebnis = r.fehlt
+      ? { fehler: "Der Kalender „Aufträge“ fehlt – bitte erst anlegen." }
+      : { deadlines: `${r.eingetragen}-${r.entfernt}` };
+  } catch (fehler) {
+    ergebnis = { fehler: fehler instanceof Error ? fehler.message.slice(0, 300) : "Unbekannter Fehler" };
+  }
+  revalidatePath("/kalender");
+  redirect(`/kalender?${new URLSearchParams(ergebnis)}`);
 }
 
 export type TerminStand = { fehler?: string };

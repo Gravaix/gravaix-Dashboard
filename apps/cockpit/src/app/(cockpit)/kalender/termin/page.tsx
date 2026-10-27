@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Mail, Repeat } from "lucide-react";
 import { ansichtLink } from "@/components/kalender/ansichten";
 import { KalenderFehler } from "@/components/kalender/kalender-fehler";
@@ -8,6 +8,7 @@ import { TerminFormular } from "@/components/kalender/termin-formular";
 import { TerminLoeschen } from "@/components/kalender/termin-loeschen";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { deadlineAuftrag } from "@/lib/kalender/deadlines";
 import { kalenderInfo } from "@/lib/kalender/liste";
 import { istDatei, istKalender, terminLesen } from "@/lib/kalender/termine";
 import { tagName } from "@/lib/kalender/zeit";
@@ -19,6 +20,9 @@ export default async function TerminPage({ searchParams }: PageProps<"/kalender/
   if (!istKalender(params.kal) || !istDatei(params.datei)) notFound();
   const kalender = params.kal;
   const datei = params.datei;
+  // Deadlines gehören zum Auftrag und werden dort geändert.
+  const auftragId = deadlineAuftrag(datei);
+  if (auftragId !== null) redirect(`/auftraege/${auftragId}`);
 
   let termin;
   try {

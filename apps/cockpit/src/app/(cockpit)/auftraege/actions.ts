@@ -7,6 +7,7 @@ import { euroZuCent } from "@/lib/auftrag/geld";
 import { STATUS_WERTE } from "@/lib/auftrag/status";
 import { satzAusText } from "@/lib/auftrag/steuer";
 import { prisma } from "@/lib/db";
+import { deadlinesNachziehen } from "@/lib/kalender/deadlines";
 import { mailFuerAuftrag } from "@/lib/mail/imap";
 import { getSession } from "@/lib/session";
 
@@ -90,6 +91,7 @@ export async function auftragAnlegen(_vorher: AuftragStand, form: FormData): Pro
       dateien: { create: dateien },
     },
   });
+  await deadlinesNachziehen();
   revalidatePath("/auftraege");
   redirect("/auftraege");
 }
@@ -107,6 +109,7 @@ export async function auftragSpeichern(_vorher: AuftragStand, form: FormData): P
     where: { id },
     data: { ...daten, erledigtAm: erledigtAm(vorher, daten.status ?? vorher.status) },
   });
+  await deadlinesNachziehen();
   revalidatePath("/auftraege");
   redirect("/auftraege");
 }
@@ -121,6 +124,7 @@ export async function statusSetzen(form: FormData) {
   const vorher = await prisma.auftrag.findUnique({ where: { id }, select: { status: true, erledigtAm: true } });
   if (!vorher) return;
   await prisma.auftrag.update({ where: { id }, data: { status, erledigtAm: erledigtAm(vorher, status) } });
+  await deadlinesNachziehen();
   revalidatePath("/auftraege");
 }
 

@@ -62,7 +62,7 @@ werden nie verändert oder gelöscht.
 
 | Kalender | Farbe | Wofür |
 | --- | --- | --- |
-| Aufträge | Orange | Deadlines aus dem Auftragsboard (kommen später automatisch) |
+| Aufträge | Orange | Deadlines aus dem Auftragsboard (automatisch) |
 | Termine | Blau | Kundentermine, Abholungen, Lieferanten |
 | Privat | Grün | Alles Private |
 
@@ -83,6 +83,21 @@ werden nie verändert oder gelöscht.
   verschoben wurde.
 - Wurde ein Termin inzwischen am iPhone geändert, speichert das Cockpit nicht einfach
   drüber, sondern meldet es. Dann die Seite neu laden.
+
+## Deadlines aus dem Auftragsboard
+
+Hat ein Auftrag eine Deadline, steht sie automatisch als ganztägiger Termin im Kalender
+**Aufträge**, z. B. „Deadline A-0007: 50 Kugelschreiber mit Logo“. Am Vortag um 9 Uhr
+erinnert das iPhone daran.
+
+- Abgeglichen wird bei jeder Änderung am Auftrag (anlegen, speichern, Status-Pfeile).
+- **Erledigt** oder Deadline gelöscht → der Termin verschwindet aus dem Kalender.
+- Ändern bitte **im Auftrag**, nicht im Kalender: Änderungen am iPhone werden beim
+  nächsten Abgleich wieder überschrieben. Ein Klick auf die Deadline im Cockpit-Kalender
+  öffnet den Auftrag.
+- Eigene Termine im Kalender „Aufträge“ (z. B. „Material bestellen“) bleiben unberührt.
+- Knopf **„Deadlines abgleichen“** unten auf der Kalender-Seite: holt alles sofort nach,
+  z. B. beim ersten Mal für die schon vorhandenen Aufträge.
 
 ## iPhone und Mac verbinden
 
@@ -139,4 +154,5 @@ Update) nach `~/backups/radicale/` und verschlüsselt nach Frankfurt (siehe `doc
 
 ## Kommt als Nächstes
 
-Deadlines aus dem Auftragsboard automatisch im Kalender (siehe `ROADMAP.md`, Abschnitt 1.4).
+Die Übersicht mit Anfragen, offenen Aufträgen, Terminen und fälligen Deadlines
+(siehe `ROADMAP.md`, Abschnitt 1.5).
