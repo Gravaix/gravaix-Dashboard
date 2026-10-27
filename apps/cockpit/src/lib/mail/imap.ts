@@ -236,6 +236,55 @@ export async function mailLesen(pfad: string, uid: number): Promise<MailInhalt |
   };
 }
 
+/** Kennung, Betreff und ausgewählte Anhänge einer Mail – zum Übernehmen in einen Auftrag. */
+export async function mailFuerAuftrag(pfad: string, uid: number, nrs: number[]) {
+  const geladen = await ladeMail(pfad, uid);
+  if (!geladen) return null;
+  const { kopf, mail } = geladen;
+  return {
+    messageId: mail.messageId,
+    betreff: kopf.betreff,
+    anhaenge: nrs
+      .map((nr) => ({ nr, a: mail.attachments[nr] }))
+      .filter(({ a }) => !!a)
+      .map(({ nr, a }) => ({ name: a.filename || `anhang-${nr + 1}`, typ: a.contentType, inhalt: a.content })),
+  };
+}
+
+/**
+ * Wo liegt die Mail mit dieser Message-ID gerade? Erst am zuletzt bekannten Ort nachsehen,
+ * sonst alle Ordner durchsuchen (die Mail kann inzwischen verschoben worden sein).
+ */
+export async function mailFinden(messageId: string, tipp?: { pfad: string; uid: number }) {
+  return mitPostfach(async (c) => {
+    if (tipp) {
+      const lock = await c.getMailboxLock(tipp.pfad, { readOnly: true }).catch(() => null);
+      if (lock) {
+        try {
+          const m = await c.fetchOne(String(tipp.uid), { envelope: true }, { uid: true });
+          if (m && m.envelope?.messageId === messageId) return tipp;
+        } finally {
+          lock.release();
+        }
+      }
+    }
+    const ordner = (await c.list())
+      .filter((o) => !o.flags.has("\\Noselect") && !o.flags.has("\\NonExistent"))
+      .map((o) => o.path)
+      .sort((a, b) => Number(b === "INBOX") - Number(a === "INBOX"));
+    for (const pfad of ordner) {
+      const lock = await c.getMailboxLock(pfad, { readOnly: true });
+      try {
+        const treffer = (await c.search({ header: { "message-id": messageId } }, { uid: true })) || [];
+        if (treffer.length) return { pfad, uid: Math.max(...treffer) };
+      } finally {
+        lock.release();
+      }
+    }
+    return null;
+  });
+}
+
 export async function anhangLaden(pfad: string, uid: number, nr: number) {
   const geladen = await ladeMail(pfad, uid);
   const a = geladen?.mail.attachments[nr];
@@ -277,12 +326,12 @@ async function gesendetPfad(c: ImapFlow) {
   );
 }
 
-export type VerlaufEintrag = MailKopf & { pfad: string; vorschau: string };
+export type VerlaufEintrag = MailKopf & { pfad: string; vorschau: string; messageId?: string };
 
 const MAX_VERLAUF = 30;
 
 /** Nur den neuen Teil einer Mail: ohne Zitate („> …“) und ohne das, was ab „Am … schrieb“ / „Von:“ folgt. */
-function vorschau(text: string) {
+export function vorschau(text: string, max = 600) {
   const zeilen: string[] = [];
   for (const z of text.split("\n")) {
     if (/^\s*(Am .+ schrieb|On .+ wrote|-{2,}\s*(Original|Ursprüngliche)|Von:\s|From:\s)/i.test(z)) break;
@@ -290,7 +339,7 @@ function vorschau(text: string) {
     zeilen.push(z);
   }
   const kurz = zeilen.join("\n").replace(/\n{3,}/g, "\n\n").trim();
-  return kurz.length > 600 ? `${kurz.slice(0, 600)} …` : kurz;
+  return kurz.length > max ? `${kurz.slice(0, max)} …` : kurz;
 }
 
 /**
@@ -338,7 +387,7 @@ export async function verlauf(pfad: string, uid: number): Promise<VerlaufEintrag
             const roh = await c.fetchOne(String(kopf.uid), { source: true }, { uid: true });
             if (roh && roh.source) text = (await simpleParser(roh.source)).text ?? "";
           }
-          gefunden.set(id, { ...kopf, pfad: ordnerPfad, vorschau: vorschau(text) });
+          gefunden.set(id, { ...kopf, pfad: ordnerPfad, vorschau: vorschau(text), messageId: id.startsWith("<") ? id : undefined });
         }
       } finally {
         lock.release();

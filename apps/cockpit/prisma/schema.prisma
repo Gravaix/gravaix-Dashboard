@@ -119,7 +119,15 @@ model Auftrag {
   updatedAt  DateTime       @updatedAt
   dateien    AuftragDatei[]
 
+  /// Verknüpfte Mail: Message-ID bleibt gleich, auch wenn die Mail verschoben wird
+  mailMessageId String?
+  mailBetreff   String?
+  /// Zuletzt bekannter Ort der Mail (Ordner + UID) – nur ein Hinweis, wird beim Öffnen geprüft
+  mailOrdner    String?
+  mailUid       Int?
+
   @@index([status])
+  @@index([mailMessageId])
   @@map("auftrag")
 }
 
