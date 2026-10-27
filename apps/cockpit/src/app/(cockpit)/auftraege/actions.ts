@@ -95,3 +95,12 @@ function erledigtAm(vorher: { status: AuftragStatus; erledigtAm: Date | null }, 
   if (neu !== "ERLEDIGT") return null;
   return vorher.status === "ERLEDIGT" ? vorher.erledigtAm : new Date();
 }
+
+/** Eine hochgeladene Datei wieder vom Auftrag entfernen (nach Rückfrage im Browser). */
+export async function dateiEntfernen(form: FormData) {
+  await angemeldet();
+  const id = Number(form.get("dateiId"));
+  if (!Number.isInteger(id) || id < 1) throw new Error("Ungültige Datei");
+  const datei = await prisma.auftragDatei.delete({ where: { id }, select: { auftragId: true } });
+  revalidatePath(`/auftraege/${datei.auftragId}`);
+}

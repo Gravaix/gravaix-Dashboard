@@ -11,6 +11,11 @@ als Karten in fünf Spalten: **Anfrage → Angebot → Produktion → Versand �
 - **Angaben:** Produkt, Menge, Gravur/Druck (Text, Schrift, Position …) und
   Preis gesamt (netto). Den Preis kannst du wie gewohnt tippen: `249,90`,
   `1.234,50` oder `12`. Bis Ende 2026 ist netto gleich Endpreis (Kleinunternehmer).
+- **Dateien:** Im geöffneten Auftrag unten „Dateien hinzufügen“ – Logos,
+  Druckvorlagen (SVG, PDF, AI, EPS …) oder Fotos, bis 25 MB pro Datei, mehrere
+  auf einmal. Bilder zeigen ein Vorschaubild, Antippen öffnet bzw. lädt herunter.
+  Das ✕ entfernt eine Datei (mit Rückfrage). Die Dateien liegen in der Datenbank
+  und sind damit im täglichen Backup und in der externen Kopie enthalten.
 - **Weiterschieben:** Mit den Pfeilen unten auf der Karte eine Spalte nach links
   oder rechts.
 - **Bearbeiten:** Auf die Karte tippen. Dort lassen sich alle Angaben und der
@@ -26,4 +31,4 @@ Server und sind im täglichen Backup enthalten.
 
 ## Kommt als Nächstes
 
-Logo-Dateien am Auftrag, Preis mit MwSt.-Schalter und „Auftrag aus Mail anlegen“ (siehe `ROADMAP.md`, Abschnitt 1.3).
+Preis mit MwSt.-Schalter und „Auftrag aus Mail anlegen“ (siehe `ROADMAP.md`, Abschnitt 1.3).

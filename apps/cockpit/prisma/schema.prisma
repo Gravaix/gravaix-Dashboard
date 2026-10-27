@@ -101,7 +101,7 @@ enum AuftragStatus {
 }
 
 model Auftrag {
-  id         Int           @id @default(autoincrement())
+  id         Int            @id @default(autoincrement())
   titel      String
   kunde      String
   kundeEmail String?
@@ -111,13 +111,30 @@ model Auftrag {
   gravur     String?
   /// Gesamtpreis netto in Cent (bis Ende 2026 = Endpreis, Kleinunternehmer §19 UStG)
   preisCent  Int?
-  status     AuftragStatus @default(ANFRAGE)
-  deadline   DateTime?     @db.Date
+  status     AuftragStatus  @default(ANFRAGE)
+  deadline   DateTime?      @db.Date
   notizen    String?
   erledigtAm DateTime?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  dateien    AuftragDatei[]
 
   @@index([status])
   @@map("auftrag")
+}
+
+/// Logos, Druckvorlagen, Fotos zum Auftrag. Liegen in der Datenbank,
+/// damit sie automatisch im täglichen Backup (auch extern) enthalten sind.
+model AuftragDatei {
+  id        Int      @id @default(autoincrement())
+  auftragId Int
+  auftrag   Auftrag  @relation(fields: [auftragId], references: [id], onDelete: Cascade)
+  name      String
+  typ       String
+  groesse   Int
+  inhalt    Bytes
+  createdAt DateTime @default(now())
+
+  @@index([auftragId])
+  @@map("auftrag_datei")
 }

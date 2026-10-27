@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { auftragSpeichern } from "@/app/(cockpit)/auftraege/actions";
+import { AuftragDateien } from "@/components/auftrag/auftrag-dateien";
 import { AuftragFormular } from "@/components/auftrag/auftrag-formular";
 import { PageHeader } from "@/components/page-header";
 import { centZuEingabe } from "@/lib/auftrag/geld";
@@ -11,11 +12,17 @@ export const metadata: Metadata = { title: "Auftrag" };
 
 const DATUM = { timeZone: "Europe/Berlin", dateStyle: "medium", timeStyle: "short" } as const;
 
-export default async function AuftragPage({ params }: PageProps<"/auftraege/[id]">) {
+export default async function AuftragPage({ params, searchParams }: PageProps<"/auftraege/[id]">) {
   const id = Number((await params).id);
+  const suche = await searchParams;
   if (!Number.isInteger(id) || id < 1) notFound();
-  const a = await prisma.auftrag.findUnique({ where: { id } });
+  const a = await prisma.auftrag.findUnique({
+    where: { id },
+    // Ohne den Dateiinhalt – der wird erst beim Öffnen geladen.
+    include: { dateien: { select: { id: true, name: true, typ: true, groesse: true }, orderBy: { createdAt: "asc" } } },
+  });
   if (!a) notFound();
+  const hochgeladen = Number(suche.hochgeladen);
 
   return (
     <>
@@ -39,6 +46,12 @@ export default async function AuftragPage({ params }: PageProps<"/auftraege/[id]
           status: a.status,
           notizen: a.notizen ?? "",
         }}
+      />
+      <AuftragDateien
+        auftragId={a.id}
+        dateien={a.dateien}
+        hinweis={hochgeladen > 0 ? `${hochgeladen === 1 ? "1 Datei" : `${hochgeladen} Dateien`} hochgeladen.` : undefined}
+        fehler={typeof suche.fehler === "string" ? suche.fehler : undefined}
       />
     </>
   );
