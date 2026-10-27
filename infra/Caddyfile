@@ -33,3 +33,21 @@ cal.gravaix.de {
 		-Server
 	}
 }
+
+# Neue Webseite – Testbetrieb, nur mit Passwort (Benutzer „gravaix“).
+# Der Hash steht als WEB_TEST_HASH in infra/.env. gravaix.de selbst läuft weiter auf Onepage.
+neu.gravaix.de {
+	encode zstd gzip
+	basic_auth {
+		gravaix {$WEB_TEST_HASH}
+	}
+	reverse_proxy web:3000
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}

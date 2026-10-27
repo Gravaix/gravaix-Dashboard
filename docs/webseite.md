@@ -42,6 +42,23 @@ neu erzeugt). Für 2027 im Impressum die USt-IdNr. nachtragen.
 - [ ] Seite `/gastronomie` (auf Onepage noch Entwurf) – bei Bedarf übernehmen
 - [ ] Testlauf auf dem Server unter einer Test-Adresse
 
+## Testbetrieb unter neu.gravaix.de
+
+Die Webseite läuft zum Testen unter `https://neu.gravaix.de`, geschützt mit Benutzer
+`gravaix` und einem eigenen Passwort. Google nimmt sie nicht auf („noindex“).
+
+**Passwort setzen oder ändern** (auf dem Server, `ssh celiano@cockpit.gravaix.de`):
+
+```bash
+cd ~/gravaix/infra && read -rsp "Neues Passwort für neu.gravaix.de: " PW && echo && HASH=$(docker run --rm caddy:2 caddy hash-password --plaintext "$PW") && unset PW && sed -i '/^WEB_TEST_HASH=/d' .env && printf "WEB_TEST_HASH='%s'\n" "$HASH" >> .env && grep -c '^WEB_TEST_HASH=' .env
+```
+
+Ergebnis muss `1` sein. Nach einer Änderung Caddy neu starten:
+
+```bash
+cd ~/gravaix/infra && docker compose up -d --force-recreate caddy
+```
+
 ## Livegang – Schritte (jeweils nur mit Celianos Freigabe)
 
 1. `ANFRAGE_TOKEN` in `infra/.env` auf dem Server eintragen (`openssl rand -hex 32`).
