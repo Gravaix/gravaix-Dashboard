@@ -54,6 +54,18 @@ cd ~/gravaix/infra && docker compose ps radicale
 docker compose logs radicale --tail 20
 ```
 
+## Kalender Aufträge, Termine, Privat
+
+Im Cockpit unter **Kalender** stehen die drei Kalender. Fehlen welche, legt sie der
+Knopf **„Kalender anlegen“** auf dem Server an (mit Farbe). Vorhandene Kalender
+werden nie verändert oder gelöscht.
+
+| Kalender | Farbe | Wofür |
+| --- | --- | --- |
+| Aufträge | Orange | Deadlines aus dem Auftragsboard (kommen später automatisch) |
+| Termine | Blau | Kundentermine, Abholungen, Lieferanten |
+| Privat | Grün | Alles Private |
+
 ## Backup
 
 Die Kalender werden mit dem Datenbank-Backup gesichert (jede Nacht und vor jedem
@@ -61,5 +73,4 @@ Update) nach `~/backups/radicale/` und verschlüsselt nach Frankfurt (siehe `doc
 
 ## Kommt als Nächstes
 
-Kalender „Aufträge“, „Termine“, „Privat“ anlegen, Kalenderansicht im Cockpit und
-Anleitung für iPhone und Mac (siehe `ROADMAP.md`, Abschnitt 1.4).
+Kalenderansicht im Cockpit und Anleitung für iPhone und Mac (siehe `ROADMAP.md`, Abschnitt 1.4).
