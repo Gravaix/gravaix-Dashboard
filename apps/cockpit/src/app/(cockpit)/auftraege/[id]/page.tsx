@@ -8,6 +8,7 @@ import { AuftragFormular } from "@/components/auftrag/auftrag-formular";
 import { PageHeader } from "@/components/page-header";
 import { centZuEingabe } from "@/lib/auftrag/geld";
 import { auftragNummer } from "@/lib/auftrag/status";
+import { satzZuText } from "@/lib/auftrag/steuer";
 import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Auftrag" };
@@ -56,6 +57,7 @@ export default async function AuftragPage({ params, searchParams }: PageProps<"/
           menge: a.menge ? String(a.menge) : "",
           gravur: a.gravur ?? "",
           preis: centZuEingabe(a.preisCent),
+          steuer: satzZuText(a.mwstSatz),
           deadline: a.deadline ? a.deadline.toISOString().slice(0, 10) : "",
           status: a.status,
           notizen: a.notizen ?? "",

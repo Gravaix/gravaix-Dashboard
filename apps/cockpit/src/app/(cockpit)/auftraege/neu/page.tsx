@@ -6,13 +6,14 @@ import { AuftragFormular, type AuftragMail, type AuftragWerte } from "@/componen
 import { MailFehler } from "@/components/mail/mail-fehler";
 import { PageHeader } from "@/components/page-header";
 import { auftragNummer } from "@/lib/auftrag/status";
+import { heuteTag, satzZuText, standardSatz } from "@/lib/auftrag/steuer";
 import { prisma } from "@/lib/db";
 import { langDatum } from "@/lib/mail/format";
 import { mailLesen, vorschau } from "@/lib/mail/imap";
 
 export const metadata: Metadata = { title: "Neuer Auftrag" };
 
-const LEER: AuftragWerte = {
+const LEER: Omit<AuftragWerte, "steuer"> = {
   titel: "",
   kunde: "",
   kundeEmail: "",
@@ -29,13 +30,14 @@ export default async function NeuerAuftragPage({ searchParams }: PageProps<"/auf
   const params = await searchParams;
   const pfad = typeof params.ordner === "string" ? params.ordner : "";
   const uid = Number(params.uid);
+  const leer: AuftragWerte = { ...LEER, steuer: satzZuText(standardSatz(heuteTag())) };
 
   // Neuer Auftrag ohne Mail
   if (!pfad) {
     return (
       <>
         <PageHeader title="Neuer Auftrag" />
-        <AuftragFormular aktion={auftragAnlegen} knopf="Auftrag anlegen" werte={LEER} />
+        <AuftragFormular aktion={auftragAnlegen} knopf="Auftrag anlegen" werte={leer} />
       </>
     );
   }
@@ -60,7 +62,7 @@ export default async function NeuerAuftragPage({ searchParams }: PageProps<"/auf
     : [];
 
   const werte: AuftragWerte = {
-    ...LEER,
+    ...leer,
     titel: mail.betreff.replace(/^(\s*(re|aw|wg|fw|fwd)\s*:\s*)+/i, "").slice(0, 200),
     kunde: kunde.name || kunde.adresse || "",
     kundeEmail: kunde.adresse ?? "",

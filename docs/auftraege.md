@@ -40,6 +40,18 @@ Server und sind im täglichen Backup enthalten.
   wenn die Mail später nach „Erledigt“ oder in einen anderen Ordner verschoben wird.
 - Bei Mails aus „Gesendet“ wird der Empfänger als Kunde eingetragen.
 
+## Preis und MwSt.
+
+- Den Preis immer **netto** eingeben. Darunter rechnet das Cockpit MwSt. und Brutto aus.
+- Im Feld **MwSt.** wählst du pro Auftrag: Kleinunternehmer (keine MwSt.), 19 % oder 7 %.
+- **Bis 31.12.2026** bist du Kleinunternehmer (§19 UStG): Netto = Endpreis.
+  **Ab 01.01.2027** gilt die Regelbesteuerung mit 19 %.
+- Maßgeblich ist der **Liefertag**. Bei neuen Aufträgen stellt sich die MwSt. darum
+  automatisch nach der Deadline ein (Deadline im Jahr 2027 → 19 %). Von Hand
+  geändert, bleibt deine Wahl stehen.
+- Auf dem Board steht der Endpreis, mit MwSt. als „brutto“ markiert.
+- Bestehende Aufträge bleiben auf „Kleinunternehmer“.
+
 ## Kommt als Nächstes
 
-Preis mit MwSt.-Schalter (siehe `ROADMAP.md`, Abschnitt 1.3).
+Kalender (siehe `ROADMAP.md`, Abschnitt 1.4).

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import type { AuftragStatus } from "@/generated/prisma/client";
 import { euroZuCent } from "@/lib/auftrag/geld";
 import { STATUS_WERTE } from "@/lib/auftrag/status";
+import { satzAusText } from "@/lib/auftrag/steuer";
 import { prisma } from "@/lib/db";
 import { mailFuerAuftrag } from "@/lib/mail/imap";
 import { getSession } from "@/lib/session";
@@ -33,6 +34,7 @@ function felder(form: FormData) {
   const mengeText = text("menge", 10);
   const menge = mengeText ? Number(mengeText) : null;
   const preisCent = euroZuCent(text("preis", 20));
+  const mwstSatz = satzAusText(text("steuer", 5));
   const deadlineText = text("deadline", 10);
   const deadline = /^\d{4}-\d{2}-\d{2}$/.test(deadlineText) ? new Date(`${deadlineText}T00:00:00Z`) : null;
   const status = form.get("status");
@@ -42,11 +44,12 @@ function felder(form: FormData) {
   if (kundeEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(kundeEmail)) return { fehler: "Die E-Mail-Adresse sieht ungültig aus." };
   if (menge !== null && (!Number.isInteger(menge) || menge < 1 || menge > 1_000_000)) return { fehler: "Die Menge muss eine ganze Zahl ab 1 sein." };
   if (Number.isNaN(preisCent) || (preisCent !== null && preisCent > 100_000_000)) return { fehler: "Der Preis sieht ungültig aus, z. B. 249,90." };
+  if (mwstSatz === undefined) return { fehler: "Unbekannter MwSt.-Satz." };
   if (deadlineText && !deadline) return { fehler: "Das Datum ist ungültig." };
   if (status !== null && !istStatus(status)) return { fehler: "Unbekannter Status." };
 
   return {
-    daten: { titel, kunde, kundeEmail, produkt, menge, gravur, preisCent, notizen, deadline, ...(status ? { status } : {}) },
+    daten: { titel, kunde, kundeEmail, produkt, menge, gravur, preisCent, mwstSatz, notizen, deadline, ...(status ? { status } : {}) },
   };
 }
 

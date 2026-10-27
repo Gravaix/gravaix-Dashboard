@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useActionState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { Mail, Paperclip } from "lucide-react";
 import type { AuftragStand } from "@/app/(cockpit)/auftraege/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { centZuEuro, euroZuCent } from "@/lib/auftrag/geld";
 import { SPALTEN } from "@/lib/auftrag/status";
+import { KLEINUNTERNEHMER_BIS, STEUER_OPTIONEN, heuteTag, preisRechnung, satzAusText, satzZuText, standardSatz } from "@/lib/auftrag/steuer";
 import { groesse } from "@/lib/mail/format";
 import type { Anhang } from "@/lib/mail/imap";
 
@@ -19,7 +21,8 @@ export type AuftragWerte = {
   produkt: string;
   menge: string;
   gravur: string;
-  preis: string; // „249,90“ oder leer
+  preis: string; // netto, „249,90“ oder leer
+  steuer: string; // "" = Kleinunternehmer, sonst Satz in Prozent
   deadline: string; // JJJJ-MM-TT oder leer
   status: string;
   notizen: string;
@@ -47,6 +50,14 @@ export function AuftragFormular({
   mail?: AuftragMail;
 }) {
   const [stand, ausfuehren, laeuft] = useActionState(aktion, {});
+  const [preis, setPreis] = useState(werte.preis);
+  const [steuer, setSteuer] = useState(werte.steuer);
+  // Neue Aufträge: Satz folgt der Deadline, bis er von Hand geändert wird.
+  const [steuerVonHand, setSteuerVonHand] = useState(!!werte.id);
+
+  const nettoCent = euroZuCent(preis);
+  const satz = satzAusText(steuer) ?? null;
+  const rechnung = nettoCent !== null && !Number.isNaN(nettoCent) ? preisRechnung(nettoCent, satz) : null;
 
   return (
     <form
@@ -107,14 +118,67 @@ export function AuftragFormular({
           placeholder="Text, Schrift, Position, Größe, Farbe …"
         />
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1.5">
           <Label htmlFor="preis">Preis gesamt (netto, €)</Label>
-          <Input id="preis" name="preis" inputMode="decimal" defaultValue={werte.preis} className={FELD} placeholder="249,90" />
+          <Input
+            id="preis"
+            name="preis"
+            inputMode="decimal"
+            value={preis}
+            onChange={(e) => setPreis(e.target.value)}
+            className={FELD}
+            placeholder="249,90"
+          />
         </div>
         <div className="grid gap-1.5">
+          <Label htmlFor="steuer">MwSt.</Label>
+          <select
+            id="steuer"
+            name="steuer"
+            value={steuer}
+            onChange={(e) => {
+              setSteuer(e.target.value);
+              setSteuerVonHand(true);
+            }}
+            className="h-10 rounded-lg border bg-background px-3 text-sm"
+          >
+            {STEUER_OPTIONEN.map((o) => (
+              <option key={o.wert} value={o.wert}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      {rechnung && (
+        <p className="-mt-2 text-sm tabular-nums text-muted-foreground">
+          {satz === null ? (
+            <>
+              Endpreis <span className="font-medium text-foreground">{centZuEuro(rechnung.brutto)}</span> · keine MwSt.
+              (Kleinunternehmer, §19 UStG)
+            </>
+          ) : (
+            <>
+              {centZuEuro(rechnung.netto)} netto + {centZuEuro(rechnung.mwst)} MwSt. ({satz} %) ={" "}
+              <span className="font-medium text-foreground">{centZuEuro(rechnung.brutto)} brutto</span>
+            </>
+          )}
+        </p>
+      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-1.5">
           <Label htmlFor="deadline">Deadline</Label>
-          <Input id="deadline" name="deadline" type="date" defaultValue={werte.deadline} className={FELD} />
+          <Input
+            id="deadline"
+            name="deadline"
+            type="date"
+            defaultValue={werte.deadline}
+            onChange={(e) => {
+              if (!steuerVonHand) setSteuer(satzZuText(standardSatz(e.target.value || heuteTag())));
+            }}
+            className={FELD}
+          />
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="status">Status</Label>
@@ -160,7 +224,8 @@ export function AuftragFormular({
       )}
 
       <p className="-mt-2 text-xs text-muted-foreground">
-        Bis Ende 2026 ist der Nettopreis gleich dem Endpreis (Kleinunternehmer, §19 UStG).
+        Bis {new Date(`${KLEINUNTERNEHMER_BIS}T12:00:00Z`).toLocaleDateString("de-DE")} Kleinunternehmer (§19 UStG), danach 19 %
+        MwSt. Maßgeblich ist der Liefertag – bei neuen Aufträgen stellt sich die MwSt. nach der Deadline ein.
       </p>
 
       {stand.fehler && (
