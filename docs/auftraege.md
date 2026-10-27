@@ -29,6 +29,17 @@ als Karten in fünf Spalten: **Anfrage → Angebot → Produktion → Versand �
 Löschen gibt es bewusst (noch) nicht. Aufträge liegen in der Datenbank auf dem
 Server und sind im täglichen Backup enthalten.
 
+## Auftrag aus einer Mail anlegen
+
+- In einer Mail auf **„Auftrag anlegen“** tippen. Das Formular ist vorausgefüllt:
+  Betreff als Titel, Absender als Kunde mit E-Mail, der Text der Mail in den Notizen.
+- **Anhänge** (z. B. Logos) sind angehakt und werden beim Speichern an den Auftrag
+  gehängt. Was du nicht brauchst, einfach abhaken.
+- Die Mail bleibt **verknüpft**: Im Auftrag steht oben „Verknüpfte Mail“, in der
+  Mail (und in allen Antworten im selben Verlauf) steht der Auftrag. Das klappt auch,
+  wenn die Mail später nach „Erledigt“ oder in einen anderen Ordner verschoben wird.
+- Bei Mails aus „Gesendet“ wird der Empfänger als Kunde eingetragen.
+
 ## Kommt als Nächstes
 
-Preis mit MwSt.-Schalter und „Auftrag aus Mail anlegen“ (siehe `ROADMAP.md`, Abschnitt 1.3).
+Preis mit MwSt.-Schalter (siehe `ROADMAP.md`, Abschnitt 1.3).

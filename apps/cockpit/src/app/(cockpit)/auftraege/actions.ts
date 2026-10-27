@@ -6,6 +6,7 @@ import type { AuftragStatus } from "@/generated/prisma/client";
 import { euroZuCent } from "@/lib/auftrag/geld";
 import { STATUS_WERTE } from "@/lib/auftrag/status";
 import { prisma } from "@/lib/db";
+import { mailFuerAuftrag } from "@/lib/mail/imap";
 import { getSession } from "@/lib/session";
 
 // Server-Aktionen sind per POST direkt erreichbar – daher hier selbst den Login prüfen.
@@ -49,12 +50,42 @@ function felder(form: FormData) {
   };
 }
 
+const MAX_ANHANG = 25 * 1024 * 1024; // wie beim Hochladen: 25 MB pro Datei
+const MAX_ANHAENGE = 10;
+
 export async function auftragAnlegen(_vorher: AuftragStand, form: FormData): Promise<AuftragStand> {
   await angemeldet();
   const { daten, fehler } = felder(form);
   if (!daten) return { fehler };
+
+  // Aus einer Mail angelegt: Mail verknüpfen und ausgewählte Anhänge übernehmen.
+  // Kennung und Anhänge kommen direkt aus dem Postfach, nicht aus dem Formular.
+  let mail = {};
+  let dateien: { name: string; typ: string; groesse: number; inhalt: Uint8Array<ArrayBuffer> }[] = [];
+  const mailOrdner = String(form.get("mailOrdner") ?? "");
+  const mailUid = Number(form.get("mailUid"));
+  if (mailOrdner && Number.isInteger(mailUid) && mailUid > 0) {
+    const nrs = form.getAll("anhang").map(Number).filter((n) => Number.isInteger(n) && n >= 0).slice(0, MAX_ANHAENGE);
+    const m = await mailFuerAuftrag(mailOrdner, mailUid, nrs).catch(() => null);
+    if (!m) return { fehler: "Die Mail ließ sich nicht laden – vielleicht wurde sie inzwischen verschoben. Bitte die Mail neu öffnen." };
+    mail = { mailMessageId: m.messageId ?? null, mailBetreff: m.betreff.slice(0, 500), mailOrdner, mailUid };
+    dateien = m.anhaenge
+      .filter((a) => a.inhalt.length <= MAX_ANHANG)
+      .map((a) => ({
+        name: a.name.slice(0, 255),
+        typ: a.typ || "application/octet-stream",
+        groesse: a.inhalt.length,
+        inhalt: new Uint8Array(a.inhalt),
+      }));
+  }
+
   await prisma.auftrag.create({
-    data: { ...daten, erledigtAm: daten.status === "ERLEDIGT" ? new Date() : null },
+    data: {
+      ...daten,
+      ...mail,
+      erledigtAm: daten.status === "ERLEDIGT" ? new Date() : null,
+      dateien: { create: dateien },
+    },
   });
   revalidatePath("/auftraege");
   redirect("/auftraege");

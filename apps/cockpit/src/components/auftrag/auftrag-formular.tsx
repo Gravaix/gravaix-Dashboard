@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { startTransition, useActionState } from "react";
+import { Mail, Paperclip } from "lucide-react";
 import type { AuftragStand } from "@/app/(cockpit)/auftraege/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SPALTEN } from "@/lib/auftrag/status";
+import { groesse } from "@/lib/mail/format";
+import type { Anhang } from "@/lib/mail/imap";
 
 export type AuftragWerte = {
   id?: number;
@@ -22,6 +25,11 @@ export type AuftragWerte = {
   notizen: string;
 };
 
+/** Mail, aus der der Auftrag angelegt wird. */
+export type AuftragMail = { ordner: string; uid: number; betreff: string; anhaenge: Anhang[] };
+
+const MAX_ANHANG = 25 * 1024 * 1024;
+
 const FELD = "h-10";
 const TEXTFELD =
   "w-full rounded-lg border border-input bg-transparent px-3 py-2 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30";
@@ -31,10 +39,12 @@ export function AuftragFormular({
   aktion,
   werte,
   knopf,
+  mail,
 }: {
   aktion: (vorher: AuftragStand, form: FormData) => Promise<AuftragStand>;
   werte: AuftragWerte;
   knopf: string;
+  mail?: AuftragMail;
 }) {
   const [stand, ausfuehren, laeuft] = useActionState(aktion, {});
 
@@ -49,6 +59,18 @@ export function AuftragFormular({
       }}
     >
       {werte.id && <input type="hidden" name="id" value={werte.id} />}
+      {mail && (
+        <>
+          <input type="hidden" name="mailOrdner" value={mail.ordner} />
+          <input type="hidden" name="mailUid" value={mail.uid} />
+          <p className="flex items-start gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
+            <Mail className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+            <span className="min-w-0 break-words">
+              Aus der Mail „{mail.betreff}“ – die Mail bleibt mit dem Auftrag verknüpft.
+            </span>
+          </p>
+        </>
+      )}
 
       <div className="grid gap-1.5">
         <Label htmlFor="titel">Was?</Label>
@@ -116,6 +138,26 @@ export function AuftragFormular({
           placeholder="Absprachen, Material, Lieferadresse …"
         />
       </div>
+
+      {mail && mail.anhaenge.length > 0 && (
+        <fieldset className="grid gap-2">
+          <legend className="mb-1.5 text-sm font-medium">Anhänge aus der Mail übernehmen</legend>
+          {mail.anhaenge.map((a) => {
+            const zuGross = a.groesse > MAX_ANHANG;
+            return (
+              <label key={a.nr} className="flex items-center gap-2 text-sm has-disabled:text-muted-foreground">
+                <input type="checkbox" name="anhang" value={a.nr} defaultChecked={!zuGross} disabled={zuGross} className="size-4" />
+                <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 truncate">{a.name}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {groesse(a.groesse)}
+                  {zuGross && " · zu groß (max. 25 MB)"}
+                </span>
+              </label>
+            );
+          })}
+        </fieldset>
+      )}
 
       <p className="-mt-2 text-xs text-muted-foreground">
         Bis Ende 2026 ist der Nettopreis gleich dem Endpreis (Kleinunternehmer, §19 UStG).

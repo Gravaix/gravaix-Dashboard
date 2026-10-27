@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Mail } from "lucide-react";
 import { auftragSpeichern } from "@/app/(cockpit)/auftraege/actions";
 import { AuftragDateien } from "@/components/auftrag/auftrag-dateien";
 import { AuftragFormular } from "@/components/auftrag/auftrag-formular";
@@ -30,6 +32,18 @@ export default async function AuftragPage({ params, searchParams }: PageProps<"/
         title={`${auftragNummer(a.id)} · ${a.titel}`}
         description={`Angelegt ${a.createdAt.toLocaleString("de-DE", DATUM)} · zuletzt geändert ${a.updatedAt.toLocaleString("de-DE", DATUM)}`}
       />
+      {a.mailMessageId && (
+        <Link
+          href={`/auftraege/${a.id}/mail`}
+          className="mb-4 flex max-w-2xl items-start gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted"
+        >
+          <Mail className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <span className="min-w-0 break-words">
+            <span className="text-muted-foreground">Verknüpfte Mail: </span>
+            <span className="underline underline-offset-2">{a.mailBetreff || "Mail öffnen"}</span>
+          </span>
+        </Link>
+      )}
       <AuftragFormular
         aktion={auftragSpeichern}
         knopf="Speichern"
