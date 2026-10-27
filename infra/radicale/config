@@ -1,0 +1,32 @@
+# Radicale-Einstellungen (Doku: https://radicale.org/v3.html#configuration)
+
+[server]
+hosts = 0.0.0.0:5232
+max_connections = 20
+# Größte erlaubte Anfrage (10 MB) – reicht für Kalender mit Anhängen
+max_content_length = 10000000
+timeout = 30
+
+[auth]
+# Login mit Name + Passwort aus infra/.env (RADICALE_USER, RADICALE_PASSWORD).
+# start.sh schreibt sie beim Start in eine Datei, die nur im Container liegt.
+type = htpasswd
+htpasswd_filename = /tmp/users
+htpasswd_encryption = plain
+# Nach einem falschen Passwort 2 Sekunden warten (bremst Passwort-Raten)
+delay = 2
+realm = Gravaix Kalender
+
+[rights]
+# Jeder Nutzer sieht nur seine eigenen Kalender
+type = owner_only
+
+[storage]
+filesystem_folder = /data/collections
+
+[web]
+type = internal
+
+[logging]
+level = info
+mask_passwords = True

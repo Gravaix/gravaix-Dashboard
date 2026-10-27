@@ -32,7 +32,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] Kanban: Anfrage → Angebot → Produktion → Versand → Erledigt
 - [x] Auftrag mit Kunde, Produkt, Menge, Gravurdaten/Logo-Dateien, Deadline, Preis, Notizen
 - [x] Mit einem Klick aus einer Mail einen Auftrag anlegen (Mail bleibt verknüpft)
-- [ ] Preise mit MwSt.-Schalter (Kleinunternehmer bis 2026 / Regelbesteuerung ab 2027)
+- [x] Preise mit MwSt.-Schalter (Kleinunternehmer bis 2026 / Regelbesteuerung ab 2027)
 
 ### 1.4 Kalender
 - [ ] Radicale unter `cal.gravaix.de` mit Login

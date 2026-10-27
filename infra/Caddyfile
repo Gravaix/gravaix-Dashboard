@@ -17,7 +17,19 @@ cockpit.gravaix.de {
 	}
 }
 
-# Kalender – vorerst Platzhalter, später Radicale
+# Kalender – Radicale (CalDAV) im Container "radicale", Login über Radicale selbst
 cal.gravaix.de {
-	respond "Gravaix Kalender – im Aufbau" 200
+	encode zstd gzip
+	# Apple Kalender sucht den Server unter diesen Adressen
+	redir /.well-known/caldav / 301
+	redir /.well-known/carddav / 301
+	reverse_proxy radicale:5232
+	header {
+		X-Robots-Tag "noindex, nofollow"
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
 }

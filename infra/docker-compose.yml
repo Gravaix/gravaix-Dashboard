@@ -15,6 +15,7 @@ services:
       - caddy_config:/config
     depends_on:
       - cockpit
+      - radicale
 
   cockpit:
     build: ../apps/cockpit
@@ -34,6 +35,21 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  # Kalender (CalDAV) – von außen nur über Caddy unter cal.gravaix.de erreichbar.
+  radicale:
+    build: ./radicale
+    restart: unless-stopped
+    environment:
+      RADICALE_USER: ${RADICALE_USER:-celiano}
+      RADICALE_PASSWORD: ${RADICALE_PASSWORD:-}
+    volumes:
+      - radicale_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5232/.web/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   # Datenbank – nur intern erreichbar, kein Port nach außen.
   postgres:
@@ -55,3 +71,4 @@ volumes:
   caddy_data:
   caddy_config:
   postgres_data:
+  radicale_data:
