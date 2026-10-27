@@ -131,7 +131,7 @@ function zuKopf(m: FetchMessageObject): MailKopf {
 
 const KOPF_FELDER = { uid: true, envelope: true, flags: true, internalDate: true, bodyStructure: true } as const;
 
-function sortieren(mails: MailKopf[]) {
+function sortieren<T extends MailKopf>(mails: T[]) {
   return mails.sort((a, b) => (b.datum?.getTime() ?? 0) - (a.datum?.getTime() ?? 0) || b.uid - a.uid);
 }
 
@@ -162,6 +162,33 @@ export async function mailListe(pfad: string, seite = 1, suche = "") {
     const mails: MailKopf[] = [];
     for await (const m of c.fetch(`${von}:${bis}`, KOPF_FELDER)) mails.push(zuKopf(m));
     return { mails: sortieren(mails), gesamt, seiten };
+  });
+}
+
+/**
+ * Ungelesene Mails in Posteingang und „1 Kunden & Anfragen“ (ohne Unterordner wie „Erledigt“)
+ * für die Übersicht: Anzahl und die neuesten `max` Mails. Nur lesend.
+ */
+export async function neueAnfragen(max = 5) {
+  return mitPostfach(async (c) => {
+    const ordner = (await c.list())
+      .filter((o) => !o.flags.has("\\Noselect") && !o.flags.has("\\NonExistent"))
+      .filter((o) => o.specialUse === "\\Inbox" || /^1\s/.test(o.name));
+    let anzahl = 0;
+    const mails: (MailKopf & { pfad: string })[] = [];
+    for (const o of ordner) {
+      const lock = await c.getMailboxLock(o.path, { readOnly: true });
+      try {
+        const uids = ((await c.search({ seen: false }, { uid: true })) || []).sort((a, b) => b - a);
+        anzahl += uids.length;
+        if (uids.length) {
+          for await (const m of c.fetch(uids.slice(0, max).join(","), KOPF_FELDER, { uid: true })) mails.push({ ...zuKopf(m), pfad: o.path });
+        }
+      } finally {
+        lock.release();
+      }
+    }
+    return { anzahl, mails: sortieren(mails).slice(0, max) };
   });
 }
 
