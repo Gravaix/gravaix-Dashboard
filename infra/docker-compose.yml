@@ -36,6 +36,8 @@ services:
       RADICALE_URL: http://radicale:5232
       RADICALE_USER: ${RADICALE_USER:-celiano}
       RADICALE_PASSWORD: ${RADICALE_PASSWORD:-}
+      # Schlüssel für Anfragen aus dem Kontaktformular der Webseite (leer = Eingang gesperrt)
+      ANFRAGE_TOKEN: ${ANFRAGE_TOKEN:-}
     depends_on:
       postgres:
         condition: service_healthy
