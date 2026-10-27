@@ -12,6 +12,7 @@ import {
   terminLoeschen,
   terminPruefen,
   type TerminDaten,
+  type TerminMail,
 } from "@/lib/kalender/termine";
 import { istTag, istZeit } from "@/lib/kalender/zeit";
 import { getSession } from "@/lib/session";
@@ -69,7 +70,12 @@ export async function terminSpeichern(_vorher: TerminStand, form: FormData): Pro
       if (!istKalender(altKal) || !istDatei(altDatei)) return { fehler: "Ungültiger Termin." };
       await terminAendern(altKal, altDatei, String(form.get("etag") ?? ""), kalender, daten);
     } else {
-      await terminAnlegen(kalender, daten);
+      // Aus einer Mail: Verweis auf die Mail im Termin speichern
+      const mailId = text("mailId", 998);
+      const mailUid = Number(form.get("mailUid"));
+      const mail: TerminMail | undefined =
+        mailId && Number.isInteger(mailUid) && mailUid > 0 ? { messageId: mailId, ordner: text("mailOrdner", 500), uid: mailUid } : undefined;
+      await terminAnlegen(kalender, daten, mail);
     }
   } catch (e) {
     return { fehler: e instanceof TerminGeaendert ? `${e.message} Bitte die Seite neu laden.` : `Speichern fehlgeschlagen: ${e instanceof Error ? e.message : e}` };

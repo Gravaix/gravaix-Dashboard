@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Repeat } from "lucide-react";
+import { Mail, Repeat } from "lucide-react";
 import { ansichtLink } from "@/components/kalender/ansichten";
 import { KalenderFehler } from "@/components/kalender/kalender-fehler";
 import { TerminFormular } from "@/components/kalender/termin-formular";
@@ -27,8 +27,14 @@ export default async function TerminPage({ searchParams }: PageProps<"/kalender/
     return <KalenderFehler fehler={fehler} />;
   }
   if (!termin) notFound();
-  const { daten, etag, wiederholt } = termin;
+  const { daten, etag, wiederholt, mail } = termin;
   const zurueck = ansichtLink("woche", daten.startTag);
+  const mailKnopf = mail && (
+    <Button variant="outline" size="sm" nativeButton={false} render={<Link href={mail} />}>
+      <Mail />
+      Mail öffnen
+    </Button>
+  );
 
   // Serien (z. B. „jeden Donnerstag“) kommen aus Apple Kalender – dort bearbeiten.
   if (wiederholt) {
@@ -46,10 +52,11 @@ export default async function TerminPage({ searchParams }: PageProps<"/kalender/
           </p>
           {daten.ort && <p>Ort: {daten.ort}</p>}
           {daten.notizen && <p className="whitespace-pre-wrap">{daten.notizen}</p>}
-          <div>
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" nativeButton={false} render={<Link href={zurueck} />}>
               Zurück zum Kalender
             </Button>
+            {mailKnopf}
           </div>
         </div>
       </>
@@ -59,6 +66,7 @@ export default async function TerminPage({ searchParams }: PageProps<"/kalender/
   return (
     <>
       <PageHeader title="Termin bearbeiten" description="Änderungen erscheinen auch in Apple Kalender auf iPhone und Mac." />
+      {mailKnopf && <div className="mb-4">{mailKnopf}</div>}
       <TerminFormular zurueck={zurueck} alt={{ kalender, datei, etag }} werte={{ kalender, ...daten }} />
       <div className="mt-8 border-t pt-4">
         <TerminLoeschen kalender={kalender} datei={datei} etag={etag} datum={daten.startTag} titel={daten.titel} />

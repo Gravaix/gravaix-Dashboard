@@ -38,7 +38,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] Radicale unter `cal.gravaix.de` mit Login
 - [x] Kalender: Aufträge, Termine, Privat
 - [x] Kalenderansicht im Cockpit (Tag/Woche/Monat), Termine anlegen und bearbeiten
-- [ ] Sync mit Apple Kalender auf iPhone und Mac (Anleitung in `/docs`)
+- [x] Sync mit Apple Kalender auf iPhone und Mac (Anleitung in `/docs`) – iPhone getestet, Mac übersprungen (Wechsel auf Windows)
 - [ ] Termin direkt aus einer Mail anlegen
 - [ ] Deadlines aus dem Auftragsboard erscheinen automatisch im Kalender
 

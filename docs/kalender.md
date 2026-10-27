@@ -76,6 +76,11 @@ werden nie verändert oder gelöscht.
   verschoben. Unten auf der Seite kann er gelöscht werden (mit Rückfrage).
 - **Serientermine** (z. B. „jeden Donnerstag“) werden angezeigt, aber nur in Apple
   Kalender geändert. Im Cockpit steht dann ein Hinweis.
+- **Termin aus einer Mail:** In der Mail oben auf **„Termin anlegen“**. Titel (Betreff) und
+  Notizen (Absender + Mailtext) sind schon ausgefüllt, Datum und Uhrzeit trägst du ein.
+  Der Termin merkt sich die Mail: im Cockpit über **„Mail öffnen“**, in Apple Kalender
+  über den Link (URL) im Termin – auch wenn die Mail inzwischen in einen anderen Ordner
+  verschoben wurde.
 - Wurde ein Termin inzwischen am iPhone geändert, speichert das Cockpit nicht einfach
   drüber, sondern meldet es. Dann die Seite neu laden.
 
@@ -134,5 +139,4 @@ Update) nach `~/backups/radicale/` und verschlüsselt nach Frankfurt (siehe `doc
 
 ## Kommt als Nächstes
 
-Termin direkt aus einer Mail anlegen und Deadlines aus dem Auftragsboard automatisch im
-Kalender (siehe `ROADMAP.md`, Abschnitt 1.4).
+Deadlines aus dem Auftragsboard automatisch im Kalender (siehe `ROADMAP.md`, Abschnitt 1.4).
