@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarPlus, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Plus, Smartphone } from "lucide-react";
 import { kalenderAnlegen } from "@/app/(cockpit)/kalender/actions";
 import { MonatAnsicht, TagAnsicht, WocheAnsicht, ansichtLink, neuLink } from "@/components/kalender/ansichten";
 import { KalenderFehler } from "@/components/kalender/kalender-fehler";
@@ -148,6 +148,27 @@ export default async function KalenderPage({ searchParams }: PageProps<"/kalende
           </li>
         ))}
       </ul>
+
+      <details className="mt-6 max-w-xl rounded-xl border p-3 text-sm">
+        <summary className="flex cursor-pointer items-center gap-2 font-medium">
+          <Smartphone className="size-4 text-muted-foreground" />
+          Auf iPhone und Mac einrichten
+        </summary>
+        <dl className="mt-3 grid grid-cols-[8rem_1fr] gap-y-1">
+          <dt className="text-muted-foreground">Accounttyp</dt>
+          <dd>CalDAV (bei „Andere“)</dd>
+          <dt className="text-muted-foreground">Server</dt>
+          <dd className="font-mono">cal.gravaix.de</dd>
+          <dt className="text-muted-foreground">Benutzername</dt>
+          <dd className="font-mono">celiano</dd>
+          <dt className="text-muted-foreground">Passwort</dt>
+          <dd>Kalender-Passwort aus dem Passwort-Manager</dd>
+        </dl>
+        <p className="mt-3 text-muted-foreground">
+          iPhone: Einstellungen → Apps → Kalender → Kalender-Accounts → Account hinzufügen → Andere. Mac: App Kalender →
+          Kalender → Account hinzufügen → Anderer CalDAV-Account (Manuell). Ausführlich in <code>docs/kalender.md</code>.
+        </p>
+      </details>
     </>
   );
 }
