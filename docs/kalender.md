@@ -79,6 +79,54 @@ werden nie verändert oder gelöscht.
 - Wurde ein Termin inzwischen am iPhone geändert, speichert das Cockpit nicht einfach
   drüber, sondern meldet es. Dann die Seite neu laden.
 
+## iPhone und Mac verbinden
+
+Voraussetzung: Im Cockpit unter **Kalender** sind die drei Kalender angelegt
+(oben darf kein Hinweis „Noch nicht eingerichtet“ stehen).
+
+Du brauchst:
+
+| Feld | Eintrag |
+| --- | --- |
+| Server | `cal.gravaix.de` |
+| Benutzername | `celiano` |
+| Passwort | Kalender-Passwort aus dem Passwort-Manager („Gravaix Kalender“) |
+| Beschreibung | `Gravaix` |
+
+### iPhone
+
+1. **Einstellungen** → **Apps** → **Kalender** → **Kalender-Accounts** → **Account hinzufügen**
+   (bei älteren iOS-Versionen: Einstellungen → Kalender → Accounts).
+2. **Andere** → **CalDAV-Account hinzufügen**.
+3. Server, Benutzername, Passwort und Beschreibung wie oben eintragen → **Weiter**.
+4. „Kalender“ eingeschaltet lassen → **Sichern**.
+5. In der Kalender-App unten auf **Kalender** tippen: Unter „GRAVAIX“ stehen
+   Aufträge, Termine und Privat.
+6. Empfohlen: **Einstellungen** → **Apps** → **Kalender** → **Standardkalender** →
+   „Termine“ (Gravaix). Dann landen neue Termine automatisch auf deinem Server.
+
+### Mac
+
+1. App **Kalender** öffnen → Menü **Kalender** → **Account hinzufügen …**
+2. **Anderer CalDAV-Account …** wählen → **Fortfahren**.
+3. Accounttyp **Manuell**, dann Benutzername, Passwort und als Serveradresse
+   `cal.gravaix.de` eintragen → **Anmelden**.
+4. Links in der Seitenleiste erscheint „cal.gravaix.de“ mit den drei Kalendern.
+5. Empfohlen: **Kalender** → **Einstellungen** → **Allgemein** → **Standardkalender**:
+   „Termine“. Unter **Accounts** → cal.gravaix.de → **Aktualisieren: Alle 5 Minuten**.
+
+### Gut zu wissen
+
+- Änderungen kommen nicht sofort, sondern beim nächsten Abgleich: am Mac alle paar
+  Minuten, am iPhone beim Öffnen der Kalender-App bzw. nach der Einstellung unter
+  „Datenabgleich“ (Einstellungen → Apps → Mail → Mail-Accounts → Datenabgleich).
+- Termine im Cockpit, am iPhone und am Mac sind dieselben – gelöscht ist überall gelöscht.
+- Bestehende iCloud-Kalender bleiben, wie sie sind. Sie liegen bei Apple, nicht auf
+  deinem Server, und erscheinen deshalb nicht im Cockpit.
+- **Fehler „Kann Account nicht überprüfen“:** Passwort prüfen (Groß-/Kleinschreibung,
+  kein Leerzeichen am Ende). Am Mac sonst Accounttyp „Erweitert“ wählen: Server
+  `cal.gravaix.de`, Serverpfad `/celiano/`, Port 443, SSL an.
+
 ## Backup
 
 Die Kalender werden mit dem Datenbank-Backup gesichert (jede Nacht und vor jedem
@@ -86,4 +134,5 @@ Update) nach `~/backups/radicale/` und verschlüsselt nach Frankfurt (siehe `doc
 
 ## Kommt als Nächstes
 
-Anleitung für iPhone und Mac (siehe `ROADMAP.md`, Abschnitt 1.4).
+Termin direkt aus einer Mail anlegen und Deadlines aus dem Auftragsboard automatisch im
+Kalender (siehe `ROADMAP.md`, Abschnitt 1.4).
