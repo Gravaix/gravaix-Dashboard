@@ -6,6 +6,7 @@
 #   1. neue Version holen (nur "fast-forward", nie lokale Änderungen überschreiben)
 #   2. Backup der Datenbank (falls das Update die Datenbank ändert)
 #   3. Container neu bauen und starten – schlägt das Bauen fehl, läuft die alte Version weiter
+#      (Caddy nur, wenn sich das Caddyfile geändert hat)
 #   4. prüfen, ob das Cockpit wieder antwortet
 #
 # Von Hand starten (auf dem Server):  ~/gravaix/infra/deploy.sh
@@ -50,12 +51,20 @@ fi
 log "Backup vor dem Update …"
 "$REPO/infra/backup.sh" || fehlgeschlagen "ABBRUCH: Backup fehlgeschlagen, Update nicht aufgespielt."
 
+ALT="$(git rev-parse HEAD)"
 git merge --ff-only --quiet origin/main || fehlgeschlagen "ABBRUCH: Update lässt sich nicht sauber übernehmen (kein fast-forward)."
 
 log "Baue und starte Container …"
 cd "$REPO/infra"
 docker compose up -d --build --remove-orphans \
   || fehlgeschlagen "FEHLER beim Bauen/Starten. Scheitert schon der Build, läuft die alte Version weiter."
+
+# Caddy liest das Caddyfile nur beim Start (und sieht als einzeln eingehängte Datei
+# die neue Fassung erst nach dem Neuerstellen). Darum nur bei Änderungen neu starten (~1 s Pause).
+if ! git -C "$REPO" diff --quiet "$ALT" HEAD -- infra/Caddyfile; then
+  log "Caddyfile geändert – Caddy wird neu gestartet …"
+  docker compose up -d --force-recreate caddy || fehlgeschlagen "FEHLER: Caddy startet mit dem neuen Caddyfile nicht."
+fi
 
 for i in $(seq 1 30); do
   if curl -fsS -o /dev/null --max-time 5 "$COCKPIT_URL"; then
