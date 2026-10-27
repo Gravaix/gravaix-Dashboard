@@ -13,9 +13,13 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data        # SSL-Zertifikate
       - caddy_config:/config
+    environment:
+      # Passwort-Hash für die Test-Webseite neu.gravaix.de (siehe docs/webseite.md)
+      WEB_TEST_HASH: ${WEB_TEST_HASH:?WEB_TEST_HASH fehlt in infra/.env}
     depends_on:
       - cockpit
       - radicale
+      - web
 
   cockpit:
     build: ../apps/cockpit
@@ -36,9 +40,22 @@ services:
       RADICALE_URL: http://radicale:5232
       RADICALE_USER: ${RADICALE_USER:-celiano}
       RADICALE_PASSWORD: ${RADICALE_PASSWORD:-}
+      # Schlüssel für Anfragen aus dem Kontaktformular der Webseite (leer = Eingang gesperrt)
+      ANFRAGE_TOKEN: ${ANFRAGE_TOKEN:-}
     depends_on:
       postgres:
         condition: service_healthy
+
+  # Webseite (Phase 2) – vorerst nur zum Testen unter neu.gravaix.de, mit Passwort.
+  web:
+    build: ../apps/web
+    restart: unless-stopped
+    environment:
+      WEB_URL: https://neu.gravaix.de
+      COCKPIT_INTERN_URL: http://cockpit:3000
+      ANFRAGE_TOKEN: ${ANFRAGE_TOKEN:-}
+    depends_on:
+      - cockpit
 
   # Kalender (CalDAV) – von außen nur über Caddy unter cal.gravaix.de erreichbar.
   radicale:
