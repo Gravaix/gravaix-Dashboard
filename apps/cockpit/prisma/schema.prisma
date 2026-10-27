@@ -111,6 +111,8 @@ model Auftrag {
   gravur     String?
   /// Gesamtpreis netto in Cent (bis Ende 2026 = Endpreis, Kleinunternehmer §19 UStG)
   preisCent  Int?
+  /// MwSt.-Satz in Prozent (19 oder 7). Leer = Kleinunternehmer (§19 UStG), keine MwSt.
+  mwstSatz   Int?
   status     AuftragStatus  @default(ANFRAGE)
   deadline   DateTime?      @db.Date
   notizen    String?

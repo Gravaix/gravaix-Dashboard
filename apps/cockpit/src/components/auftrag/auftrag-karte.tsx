@@ -4,12 +4,8 @@ import { statusSetzen } from "@/app/(cockpit)/auftraege/actions";
 import type { Auftrag } from "@/generated/prisma/client";
 import { centZuEuro } from "@/lib/auftrag/geld";
 import { auftragNummer, nachbar, statusName } from "@/lib/auftrag/status";
+import { heuteTag, preisRechnung } from "@/lib/auftrag/steuer";
 import { cn } from "@/lib/utils";
-
-/** Heute als JJJJ-MM-TT in deutscher Zeit – Deadlines sind reine Kalendertage. */
-export function heuteTag() {
-  return new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" });
-}
 
 function deadlineAnzeige(deadline: Date, erledigt: boolean) {
   const tag = deadline.toISOString().slice(0, 10);
@@ -57,7 +53,10 @@ export function AuftragKarte({ auftrag }: { auftrag: Auftrag }) {
           </span>
         )}
         {auftrag.preisCent !== null && (
-          <span className="block text-xs font-medium tabular-nums">{centZuEuro(auftrag.preisCent)}</span>
+          <span className="block text-xs font-medium tabular-nums">
+            {centZuEuro(preisRechnung(auftrag.preisCent, auftrag.mwstSatz).brutto)}
+            {auftrag.mwstSatz !== null && <span className="font-normal text-muted-foreground"> brutto</span>}
+          </span>
         )}
         {deadline && (
           <span className={cn("mt-1 flex items-center gap-1 text-xs", deadline.klasse)}>
