@@ -66,6 +66,19 @@ werden nie verändert oder gelöscht.
 | Termine | Blau | Kundentermine, Abholungen, Lieferanten |
 | Privat | Grün | Alles Private |
 
+## Kalender im Cockpit
+
+- **Ansichten:** Monat, Woche (Standard) und Tag. Mit ‹ › blättern, „Heute“ springt zurück.
+  Am Handy zeigt der Monat farbige Punkte, ein Tipp auf den Tag öffnet die Tagesansicht.
+- **Neuer Termin:** Knopf oben rechts oder das **+** an einem Tag. Kalender wählen,
+  Beginn und Ende, optional ganztägig, Ort und Notizen.
+- **Bearbeiten:** Auf einen Termin tippen. Wechselst du den Kalender, wird der Termin
+  verschoben. Unten auf der Seite kann er gelöscht werden (mit Rückfrage).
+- **Serientermine** (z. B. „jeden Donnerstag“) werden angezeigt, aber nur in Apple
+  Kalender geändert. Im Cockpit steht dann ein Hinweis.
+- Wurde ein Termin inzwischen am iPhone geändert, speichert das Cockpit nicht einfach
+  drüber, sondern meldet es. Dann die Seite neu laden.
+
 ## Backup
 
 Die Kalender werden mit dem Datenbank-Backup gesichert (jede Nacht und vor jedem
@@ -73,4 +86,4 @@ Update) nach `~/backups/radicale/` und verschlüsselt nach Frankfurt (siehe `doc
 
 ## Kommt als Nächstes
 
-Kalenderansicht im Cockpit und Anleitung für iPhone und Mac (siehe `ROADMAP.md`, Abschnitt 1.4).
+Anleitung für iPhone und Mac (siehe `ROADMAP.md`, Abschnitt 1.4).

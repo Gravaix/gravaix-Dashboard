@@ -1,5 +1,6 @@
 import "server-only";
 import { DAVClient, type DAVCalendar } from "tsdav";
+import { KALENDER } from "@/lib/kalender/liste";
 
 // Zugriff auf die Kalender in Radicale (cal.gravaix.de) per CalDAV – dieselben
 // Kalender, die Apple Kalender auf iPhone und Mac anzeigt. Das Cockpit spricht
@@ -7,14 +8,7 @@ import { DAVClient, type DAVCalendar } from "tsdav";
 
 export class KalenderNichtEingerichtet extends Error {}
 
-/** Die festen Kalender. `slug` ist der Teil der Adresse, z. B. cal.gravaix.de/celiano/termine/ */
-export const KALENDER = [
-  { slug: "auftraege", name: "Aufträge", farbe: "#E8590C", zweck: "Deadlines aus dem Auftragsboard" },
-  { slug: "termine", name: "Termine", farbe: "#1971C2", zweck: "Kundentermine, Abholungen, Lieferanten" },
-  { slug: "privat", name: "Privat", farbe: "#2F9E44", zweck: "Alles Private" },
-] as const;
-
-export type KalenderSlug = (typeof KALENDER)[number]["slug"];
+export { KALENDER, type KalenderSlug } from "@/lib/kalender/liste";
 
 function config() {
   const username = process.env.RADICALE_USER;
@@ -23,7 +17,7 @@ function config() {
   return { serverUrl: process.env.RADICALE_URL || "http://radicale:5232", credentials: { username, password } };
 }
 
-async function verbinden() {
+export async function verbinden() {
   const { serverUrl, credentials } = config();
   const client = new DAVClient({ serverUrl, credentials, authMethod: "Basic", defaultAccountType: "caldav" });
   await client.login();
@@ -31,7 +25,7 @@ async function verbinden() {
 }
 
 /** Passt ein Kalender auf dem Server zu einem der festen Kalender? Erst über die Adresse, sonst über den Namen. */
-function finde(liste: DAVCalendar[], k: (typeof KALENDER)[number]) {
+export function finde(liste: DAVCalendar[], k: (typeof KALENDER)[number]) {
   return (
     liste.find((c) => c.url.replace(/\/$/, "").endsWith(`/${k.slug}`)) ??
     liste.find((c) => typeof c.displayName === "string" && c.displayName.trim().toLowerCase() === k.name.toLowerCase())
