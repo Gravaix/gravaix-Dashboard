@@ -50,7 +50,10 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [ ] Antwortentwürfe vorschlagen, Versand nur nach Freigabe
 - [ ] Aus Anfrage-Mails Auftragsdaten vorausfüllen
 
-## Phase 2: Shop (`shop.gravaix.de`)
+## Phase 2: Webseite & Shop (`gravaix.de`, bisher Onepage)
+Webseite und Shop werden eine gemeinsame Next.js-Seite auf dem eigenen Server. Onepage läuft weiter, bis die neue Seite fertig ist, und wird erst danach gekündigt.
+- [ ] Inhalte der bisherigen Onepage-Seite übernehmen (Texte, Bilder, Leistungen, Kontakt), dabei auffrischen
+- [ ] Startseite, Leistungen, Referenzen, Kontakt, Impressum, Datenschutz
 - [ ] Medusa-Backend mit Produkten, Varianten, Lager, MwSt.
 - [ ] Next.js-Shop: Startseite, Kategorien, Produktseiten, Warenkorb, Checkout
 - [ ] Gravur-Editor: Logo-Upload, Text, Schriftauswahl, Live-Vorschau auf dem Produkt, Export als laserfertige SVG
@@ -59,6 +62,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [ ] Bestell- und Versandmails
 - [ ] Shop-Bestellungen landen automatisch im Auftragsboard
 - [ ] Testbestellungen, dann Launch
+- [ ] Umzug: Weiterleitungen für alte Links, dann DNS von `gravaix.de` auf den Server (nur mit Celianos Freigabe; Mail-Einträge bei IONOS bleiben unverändert), danach Onepage kündigen
 
 ## Später / Ideen
 - Etsy- und eBay-Bestellungen ins Auftragsboard holen
