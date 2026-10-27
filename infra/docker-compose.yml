@@ -32,6 +32,10 @@ services:
       MAIL_SMTP_HOST: ${MAIL_SMTP_HOST:-smtp.ionos.de}
       MAIL_SMTP_PORT: ${MAIL_SMTP_PORT:-465}
       MAIL_ABSENDER_NAME: ${MAIL_ABSENDER_NAME:-Gravaix Lasermanufaktur}
+      # Kalender (Radicale) – direkt im Docker-Netz, gleicher Login wie auf iPhone/Mac
+      RADICALE_URL: http://radicale:5232
+      RADICALE_USER: ${RADICALE_USER:-celiano}
+      RADICALE_PASSWORD: ${RADICALE_PASSWORD:-}
     depends_on:
       postgres:
         condition: service_healthy

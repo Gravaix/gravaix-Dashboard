@@ -35,7 +35,7 @@ Ein Schritt gilt erst als erledigt, wenn er auf dem Server läuft und Celiano ih
 - [x] Preise mit MwSt.-Schalter (Kleinunternehmer bis 2026 / Regelbesteuerung ab 2027)
 
 ### 1.4 Kalender
-- [ ] Radicale unter `cal.gravaix.de` mit Login
+- [x] Radicale unter `cal.gravaix.de` mit Login
 - [ ] Kalender: Aufträge, Termine, Privat
 - [ ] Kalenderansicht im Cockpit (Tag/Woche/Monat), Termine anlegen und bearbeiten
 - [ ] Sync mit Apple Kalender auf iPhone und Mac (Anleitung in `/docs`)
